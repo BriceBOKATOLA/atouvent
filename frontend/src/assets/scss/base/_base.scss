@@ -3,7 +3,9 @@
 
 /* Remise à zéro, typographie et règles d'accessibilité globales */
 *,*::before,*::after{box-sizing:border-box}
-html{font-size:var(--base);-webkit-text-size-adjust:100%}
+// Bords fixes : place de la barre de défilement toujours réservée (pas de saut entre pages), aucun glissement latéral
+html{font-size:var(--base);-webkit-text-size-adjust:100%;scrollbar-gutter:stable;overflow-x:clip;overscroll-behavior-x:none}
+body{overflow-x:clip}
 body{margin:0;background:var(--fond);color:var(--texte);font-family:var(--font-texte);font-size:1rem;line-height:1.5}
 :lang(zh) body,:root:lang(zh){font-family:"Noto Sans SC",var(--font-texte)}
 h1,h2,h3{font-family:var(--font-titre);line-height:1.15;margin:0}

@@ -56,4 +56,5 @@
 
 /* Écrans plein écran (sans navigation basse) */
 .app--full .app-main{padding-bottom:24px}
-@include bp.up(lg){ .app--full{padding-left:0} }
+// Pages sans navigation (langue, connexion, inscription, plein écran) : pas de place réservée au menu latéral
+@include bp.up(lg){ .app--full, .app--plain{padding-left:0} }
