@@ -1,0 +1,10 @@
+{
+  "appId": "com.atouvent.app",
+  "appName": "AtouVent",
+  "webDir": "dist",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "Geolocation": {}
+  }
+}
