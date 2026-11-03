@@ -191,3 +191,26 @@ def test_login_limited_per_account_across_addresses(client):
     codes = [client.post(f"{API}/auth/login", json=body).status_code for _ in range(3)]
     _state.pop("limiter")
     assert codes == [401, 401, 429]
+
+
+def test_admin_actions_are_logged_and_stats_complete(client):
+    _register(client)
+    boss = _register(client, "chef@exemple.fr").json()["token"]
+    client.post(f"{API}/auth/login", json={"email": "test@exemple.fr", "password": PW})
+    uid = next(u["id"] for u in client.get(f"{API}/admin/users", headers=_auth(boss)).json()["items"] if u["email"] == "test@exemple.fr")
+    client.put(f"{API}/admin/users/{uid}/role", json={"role": "admin"}, headers=_auth(boss))
+    log = client.get(f"{API}/admin/log", headers=_auth(boss)).json()
+    assert log[0]["by"] == "chef@exemple.fr" and log[0]["target"] == "test@exemple.fr" and log[0]["detail"] == "user → admin"
+    s = client.get(f"{API}/admin/stats", headers=_auth(boss)).json()
+    assert s["new_7d"] == 2 and s["active_30d"] == 1 and "reports_24h" in s
+
+
+def test_collect_report_marks_recovered_source(db):
+    from datetime import datetime, timedelta, timezone
+    from app.routes.system import collect_report
+    now = datetime.now(timezone.utc)
+    db.collection_runs.insert_many([
+        {"source": "velib_status", "started_at": now - timedelta(minutes=2), "ok": False, "error": "ConnectTimeout: timed out"},
+        {"source": "velib_status", "started_at": now - timedelta(minutes=1), "ok": True}])
+    r = collect_report(db, 7, with_errors=True)["velib_status"]
+    assert r["state"] == "ok" and r["recovered"] and r["success_rate"] == 50.0 and r["last_error"].startswith("ConnectTimeout")

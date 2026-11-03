@@ -91,6 +91,9 @@ export default function Itineraries() {
 
   const gps = inIdf(geo.coords) ? { lat: geo.coords.lat, lon: geo.coords.lon, name: t('it.my_position') } : null
   const origin = from || gps || PARIS
+  // Le GPS répond souvent après le premier affichage : on recalcule dès que le départ bouge de plus de ~100 m
+  // (arrondi à 3 décimales, pour ne pas recalculer à chaque petit saut du GPS)
+  const originKey = `${origin.lat.toFixed(3)},${origin.lon.toFixed(3)}`
   const toggleMode = (m) => {
     const next = modes.includes(m) ? modes.filter((x) => x !== m) : [...modes, m]
     if (!next.length) return
@@ -165,23 +168,27 @@ export default function Itineraries() {
     setPicked(0)
     setError('')
     setWeather(null)
+    // Réponse d'une recherche dépassée (départ, destination ou modes changés entre-temps) : ignorée
+    let current = true
     api.trips.plan({ origin, destination: dest, accessible: sort === 'step_free', modes, walk: slow ? 'slow' : 'normal', depart_at: departAt })
-      .then((r) => setIts(r.itineraries))
-      .catch((x) => setError(err(x.code)))
+      .then((r) => current && setIts(r.itineraries))
+      .catch((x) => current && setError(err(x.code)))
     api.weather(dest.lat, dest.lon, departAt).then((raw) => {
+      if (!current) return
       const w = atDeparture(raw, departAt)
       setWeather(w)
       setHazards([...new Set([...(w.days?.[0]?.aleas || []), ...(w.hours || []).map((e) => e.hazard)])])
     }).catch(() => {})
-    api.flood().then((f) => setFlood(f.level >= 2)).catch(() => {})
-  }, [dest, sort, from, modes.join(), slow, departAt]) // eslint-disable-line react-hooks/exhaustive-deps
+    api.flood().then((f) => current && setFlood(f.level >= 2)).catch(() => {})
+    return () => { current = false }
+  }, [dest, sort, originKey, modes.join(), slow, departAt]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Horaires et temps réel : trajets recalculés toutes les 2 minutes, sans écran de chargement ni perte du choix
   useAutoRefresh(() => {
     if (!dest || status || departAt) return  // trajet à venir : horaires théoriques, pas de rafraîchissement
     api.trips.plan({ origin, destination: dest, accessible: sort === 'step_free', modes, walk: slow ? 'slow' : 'normal' })
       .then((r) => setIts(r.itineraries)).catch(() => {})
-  }, 120_000, [dest, sort, from, modes.join(), slow, status, departAt])
+  }, 120_000, [dest, sort, originKey, modes.join(), slow, status, departAt])
 
   // Avant de partir : tout le trajet est enregistré sur le téléphone
   const follow = async (trip) => {

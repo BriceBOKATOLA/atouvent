@@ -353,3 +353,22 @@ def test_plan_forwards_departure_time_and_rejects_far_future(client, monkeypatch
     assert r.status_code == 200 and abs((seen["when"] - later).total_seconds()) < 1
     far = datetime.now(timezone.utc) + timedelta(days=60)
     assert client.post("/api/v1/trips/plan", json={"origin": pt, "destination": pt, "depart_at": far.isoformat()}).status_code == 422
+
+
+def test_collector_retries_transient_network_errors(db):
+    """Un délai dépassé ponctuel (ex. Vélib' : ConnectTimeout) ne devient une erreur que si les 3 essais échouent."""
+    from app.collectors.common import run_logged
+    calls = {"n": 0}
+
+    def flaky():
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise httpx.ConnectTimeout("timed out")
+        return {"n_fetched": 1}
+    run = run_logged(db, "velib_status", flaky, waits=(0, 0))
+    assert run["ok"] and run["attempts"] == 3 and "error" not in run
+
+    def down():
+        raise httpx.ConnectTimeout("timed out")
+    run = run_logged(db, "velib_status", down, waits=(0, 0))
+    assert not run["ok"] and run["attempts"] == 3 and run["error"].startswith("ConnectTimeout")

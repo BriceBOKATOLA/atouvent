@@ -11,6 +11,7 @@ Chaque contributeur est identifié par son nom réel, comme le demande le règle
 | Nom | Compte GitHub | Rôle |
 |---|---|---|
 | Brice Bokatola | [@BriceBOKATOLA](https://github.com/BriceBOKATOLA) | conception, développement, données |
+| William Laine | [@Laine-William](https://github.com/Laine-William) | conception, développement, données |
 
 Toute nouvelle personne s'ajoute à ce tableau dans sa première contribution.
 

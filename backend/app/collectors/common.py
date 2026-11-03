@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import time
 import traceback
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Iterable
@@ -41,16 +42,32 @@ def _aware(dt: datetime) -> datetime:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
-def run_logged(db, source: str, fn: Callable[[], dict]) -> dict:
-    """Exécute un collecteur et note le résultat dans collection_runs, même en cas d'erreur."""
+RETRY_WAITS_S = (3, 10)  # délais avant la 2e et la 3e tentative
+
+
+def run_logged(db, source: str, fn: Callable[[], dict], waits: tuple[float, ...] = RETRY_WAITS_S) -> dict:
+    """Exécute un collecteur et note le résultat dans collection_runs, même en cas d'erreur.
+
+    Erreur réseau passagère (délai dépassé, connexion refusée) : jusqu'à 3 tentatives ; on n'enregistre une erreur
+    que si toutes échouent (« attempts » garde le nombre d'essais, utile pour repérer une source qui fatigue)."""
+    import httpx
     run = {"source": source, "started_at": utcnow(), "ok": False}
-    try:
-        stats = fn() or {}
-        run.update(stats, ok=True)
-    except Exception as exc:  # on n'arrête jamais le planificateur pour une erreur réseau
-        run["error"] = f"{type(exc).__name__}: {exc}"
-        run["trace"] = traceback.format_exc(limit=3)
-        log.warning("Collecte %s en échec : %s", source, run["error"])
+    for attempt in range(len(waits) + 1):
+        try:
+            stats = fn() or {}
+            run.update(stats, ok=True, attempts=attempt + 1)
+            run.pop("error", None)
+            run.pop("trace", None)
+            break
+        except httpx.TransportError as exc:  # délai dépassé, connexion impossible : on réessaie
+            run.update(error=f"{type(exc).__name__}: {exc}", trace=traceback.format_exc(limit=3), attempts=attempt + 1)
+            if attempt < len(waits):
+                time.sleep(waits[attempt])
+        except Exception as exc:  # on n'arrête jamais le planificateur pour une erreur
+            run.update(error=f"{type(exc).__name__}: {exc}", trace=traceback.format_exc(limit=3), attempts=attempt + 1)
+            break
+    if not run["ok"]:
+        log.warning("Collecte %s en échec après %s essai(s) : %s", source, run["attempts"], run["error"])
     run["finished_at"] = utcnow()
     db.collection_runs.insert_one(dict(run))
     return run

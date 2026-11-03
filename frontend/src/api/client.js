@@ -89,5 +89,7 @@ export const api = {
     users: (q, skip = 0) => request('/admin/users', { query: { q, skip, limit: 50 } }),
     setRole: (id, role) => request(`/admin/users/${encodeURIComponent(id)}/role`, { method: 'PUT', body: { role } }),
     remove: (id) => request(`/admin/users/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    log: () => request('/admin/log'),
+    gtfsRefresh: () => request('/admin/gtfs-refresh', { method: 'POST' }),
   },
 }

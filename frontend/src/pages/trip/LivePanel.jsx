@@ -141,7 +141,8 @@ export default function LivePanel({ trip, progress, gps, online, onReplan }) {
       )}
 
       {/* Perturbations sur les lignes du trajet */}
-      {live?.disruptions.map((d) => (
+      {/* Une même perturbation peut arriver deux fois (une par ligne ou par source) : une seule carte */}
+      {live?.disruptions.filter((d, i, all) => all.findIndex((x) => x.title === d.title && x.message === d.message) === i).map((d) => (
         <article key={d.id || d.title} className={`live-alert${d.severity === 'BLOQUANTE' ? ' live-alert--block' : ''}`}>
           <Icon name="alert" size={20} />
           <div><strong>{d.title}</strong>{d.message && <p>{d.message}</p>}</div>

@@ -113,11 +113,13 @@
 .live-dep{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:var(--vert-pale);color:var(--texte)}
 .live-dep span{display:flex;flex-direction:column}
 .live-dep small{color:var(--vert);font-weight:700}
-.live-dep--late{background:#FFF3E0}
+.live-dep--late{background:var(--signal-pale)}
 .live-dep--late small{color:var(--braise-fonce)}
-.live-alert{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:10px;background:#FFF3E0;font-size:.875rem}
+/* Perturbations : fonds et textes par les jetons (lisibles dans les 3 thèmes), pictogramme de la couleur du texte */
+.live-alert{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:10px;background:var(--signal-pale);color:var(--texte);font-size:.875rem}
+.live-alert svg{flex:none;color:var(--braise-fonce)}
 .live-alert p{margin:2px 0 0;color:var(--texte-2)}
-.live-alert--block{background:#FDE7E2;border-left:4px solid var(--braise-fonce)}
+.live-alert--block{background:var(--corail-pale);border-left:4px solid var(--braise-fonce)}
 .reports{list-style:none;display:flex;flex-direction:column;gap:6px;margin:0;padding:0}
 .report{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:center;padding:8px;border-radius:10px;background:var(--surface-2)}
 .report__text{display:flex;flex-direction:column}
@@ -152,3 +154,8 @@
 .depart__legend{font-weight:700;margin-bottom:6px}
 .depart__fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .depart__weather{display:flex;align-items:flex-start;gap:8px;margin:0;color:var(--texte);font-size:.9375rem}
+
+/* Mouvement de l'usager (GPS) : avance, à l'arrêt, recule */
+.motion{display:flex;align-items:center;gap:8px;margin:0;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--texte);font-weight:600}
+.motion--alert{background:var(--corail-pale);border-left:4px solid var(--braise-fonce)}
+.motion svg{flex:none}

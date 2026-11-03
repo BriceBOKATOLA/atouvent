@@ -85,6 +85,7 @@ def login(body: Login, db=Depends(db_dep)):
     # Même coût de calcul que l'adresse existe ou non
     if not sec.check_password_or_dummy(body.password, (user or {}).get("password")):
         raise HTTPException(401, "bad_credentials")
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"last_login_at": datetime.now(timezone.utc)}})
     return session(user)
 
 

@@ -5,6 +5,7 @@ Le profil de déplacement (donnée de santé) n'est jamais exposé ici.
 """
 from bson import ObjectId
 from bson.errors import InvalidId
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx
@@ -20,6 +21,10 @@ router = APIRouter(prefix="/admin", tags=["administration"])
 ANALYSIS = Path(__file__).resolve().parents[2] / "data" / "chaleur.json"
 
 
+def _aware(dt: datetime) -> datetime:
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
 def _oid(user_id: str) -> ObjectId:
     try:
         return ObjectId(user_id)
@@ -28,8 +33,15 @@ def _oid(user_id: str) -> ObjectId:
 
 
 def _row(u: dict) -> dict:
+    # Jamais le profil lui-même (donnée de santé) : seulement s'il existe
     return {"id": str(u["_id"]), "email": u["email"], "role": role_of(u), "language": u.get("language", "fr"),
-            "created_at": u.get("created_at"), "has_profile": bool(u.get("profile_enc"))}
+            "created_at": u.get("created_at"), "last_login_at": u.get("last_login_at"), "has_profile": bool(u.get("profile_enc"))}
+
+
+def _log(db, me: dict, action: str, target: dict, detail: str = "") -> None:
+    """Journal des actions d'administration (qui, quoi, sur quel compte, quand) : traçabilité des droits."""
+    db.admin_log.insert_one({"at": datetime.now(timezone.utc), "by": me["email"], "action": action,
+                             "target": target["email"], "detail": detail})
 
 
 @router.get("/analysis", dependencies=[Depends(admin_dep)])
@@ -71,11 +83,22 @@ def insights_topic(topic: str, db=Depends(db_dep)):
 
 @router.get("/stats")
 def stats(_=Depends(admin_dep), db=Depends(db_dep)):
-    users = list(db.users.find({}, {"email": 1, "role": 1, "profile_enc": 1}))
+    now = datetime.now(timezone.utc)
+    users = list(db.users.find({}, {"email": 1, "role": 1, "profile_enc": 1, "created_at": 1, "last_login_at": 1}))
     roles: dict[str, int] = {}
     for u in users:
         roles[role_of(u)] = roles.get(role_of(u), 0) + 1
-    return {"users": len(users), "with_profile": sum(bool(u.get("profile_enc")) for u in users), "roles": roles}
+    since = lambda d: [u for u in users if u.get("created_at") and _aware(u["created_at"]) >= now - timedelta(days=d)]  # noqa: E731
+    active = [u for u in users if u.get("last_login_at") and _aware(u["last_login_at"]) >= now - timedelta(days=30)]
+    return {"users": len(users), "with_profile": sum(bool(u.get("profile_enc")) for u in users), "roles": roles,
+            "new_7d": len(since(7)), "new_30d": len(since(30)), "active_30d": len(active),
+            "reports_24h": db.reports.count_documents({"created_at": {"$gte": now - timedelta(hours=24)}})}
+
+
+@router.get("/log")
+def admin_log(_=Depends(superadmin_dep), db=Depends(db_dep)):
+    """Les 100 dernières actions d'administration (changements de rôle, suppressions de comptes)."""
+    return [{k: v for k, v in e.items() if k != "_id"} for e in db.admin_log.find().sort("at", -1).limit(100)]
 
 
 @router.get("/collect")
@@ -103,6 +126,7 @@ def set_role(user_id: str, body: RoleUpdate, me=Depends(superadmin_dep), db=Depe
     if role_of(target) == "superadmin":
         raise HTTPException(409, "superadmin_locked")
     db.users.update_one({"_id": target["_id"]}, {"$set": {"role": body.role}})
+    _log(db, me, "role", target, f"{role_of(target)} → {body.role}")
     return _row(db.users.find_one({"_id": target["_id"]}))
 
 
@@ -114,4 +138,5 @@ def delete_user(user_id: str, me=Depends(superadmin_dep), db=Depends(db_dep)):
     if role_of(target) == "superadmin":
         raise HTTPException(409, "superadmin_locked")
     db.users.delete_one({"_id": target["_id"]})
+    _log(db, me, "delete", target)
     return {"deleted": True}

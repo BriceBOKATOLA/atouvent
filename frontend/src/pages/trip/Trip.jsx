@@ -38,7 +38,7 @@ function TripTracking({ bundle, onEnd }) {
   const navigate = useNavigate()
   const { prefs, set } = usePrefs()
   const { announce } = useAnnouncer()
-  const { progress, gps, online, source, offRoute, delayMs } = useTripTracker(bundle)
+  const { progress, gps, online, source, offRoute, delayMs, motion, arrivedAt } = useTripTracker(bundle)
   const [line, setLine] = useState(() => () => ({ ac: 'unknown' }))
   useEffect(() => { loadNetwork().then((g) => setLine(() => lineIndex(g))) }, [])
   const { trip } = bundle
@@ -89,6 +89,15 @@ function TripTracking({ bundle, onEnd }) {
       <main id="contenu" className="app-main trip-main">
         <NextStep progress={progress} />
 
+        {/* Arrivée détectée par le GPS, sans attendre que l'usager appuie sur « Je suis arrivé » */}
+        {arrivedAt && (
+          <section className="banner banner--ok" role="status">
+            <Icon name="check" size={24} />
+            <p><strong>{t('trip.arrived_auto', { place, time: time(arrivedAt) })}</strong> {t('trip.arrived_auto_detail')}</p>
+          </section>
+        )}
+        {!arrivedAt && gps.status === 'ok' && <MotionStatus motion={motion} />}
+
         {offRoute && (
           <section className="alert-card" role="alert">
             <Icon name="alert" size={26} />
@@ -128,6 +137,23 @@ function TripTracking({ bundle, onEnd }) {
         </button>
       </main>
     </>
+  )
+}
+
+// Mouvement de l'usager d'après le GPS : avance, à l'arrêt, revient en arrière (texte + pictogramme, jamais la couleur seule)
+function MotionStatus({ motion }) {
+  const { t } = useI18n()
+  if (motion.state === 'uncertain') return null
+  const minutes = Math.floor((motion.sinceMs || 0) / 60_000)
+  const view = {
+    moving_forward: { icon: 'walk', text: t('motion.forward') },
+    stopped: { icon: 'clock', text: minutes >= 1 ? t('motion.stopped_for', { n: minutes }) : t('motion.stopped') },
+    moving_backward: { icon: 'alert', text: t('motion.backward', { m: motion.metres }), alert: true },
+  }[motion.state]
+  return (
+    <p className={`motion${view.alert ? ' motion--alert' : ''}`} role="status">
+      <Icon name={view.icon} size={20} /> {view.text}
+    </p>
   )
 }
 

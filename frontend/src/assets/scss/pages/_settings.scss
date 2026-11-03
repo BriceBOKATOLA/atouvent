@@ -9,6 +9,7 @@
 
 /* Administration */
 .admin-user{display:grid;gap:8px}
+.admin-user > .badge{justify-self:start}
 .admin-user__actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .admin-user__actions .input{flex:1 1 160px;width:auto}
 
@@ -85,3 +86,15 @@
 .place-row{display:flex;align-items:center;gap:8px}
 .place-row .link-row{flex:1;min-width:0}
 .btn--small{min-height:44px;padding:8px 12px;font-size:14px}
+
+/* Administration : indicateurs, états de collecte (texte + pictogramme, jamais la couleur seule) */
+.admin{display:flex;flex-direction:column;gap:14px}
+.admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:8px 0}
+.admin-kpi{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.admin-kpi dt{font-size:.8125rem;color:var(--texte-2)}
+.admin-kpi dd{margin:2px 0 0;font-family:var(--font-titre);font-weight:800;font-size:1.5rem}
+.admin-state{display:inline-flex;align-items:center;gap:4px;font-weight:700}
+.admin-state--ok{color:var(--vert)}
+.admin-state--late{color:var(--signal-texte)}
+.admin-state--failing{color:var(--braise-fonce)}
+.admin-error code{white-space:normal;word-break:break-word;font-size:.8125rem}
