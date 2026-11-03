@@ -6,7 +6,7 @@ Application web installable (PWA, APK Android) et écrans pour les décideurs, r
 
 - Code : licence MIT (`licence.MIT`) · contributions : `contributing.md` · données et logiciels réutilisés : `SOURCES.md`
 - Accessibilité visée : RGAA 4.1 niveau AA (contrôles automatiques dans `frontend/scripts/a11y/`)
-- **Charte graphique : [Figma AtouVent](https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers)** : le logo, les couleurs et la typographie. Le reste (maquette des écrans, flyers) est dans le fichier, en cliquant sur le lien.
+- **Charte graphique : [Figma AtouVent](https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers?node-id=0-1&m=dev&t=oiEklMA7Sf5s0VyM-1)** : le logo, les couleurs et la typographie. Le reste (maquette des écrans, flyers) est dans le fichier, en cliquant sur le lien.
 - **En ligne : [atouvent.com](https://atouvent.com)** (site, API sur `/api`, application Android)
 - Images Docker publiées dans **GitHub Packages** : `ghcr.io/bricebokatola/atouvent-api` et `ghcr.io/bricebokatola/atouvent-web`
 
