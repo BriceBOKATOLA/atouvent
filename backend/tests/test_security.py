@@ -149,11 +149,13 @@ def test_roles(client, db):
     assert client.delete(f"{API}/me", headers=_auth(boss["token"])).status_code == 409
 
 
-def test_public_collect_status_hides_error_detail(client, db):
+def test_collect_status_hides_error_detail(db):
+    """/collect/status (admins) ne donne que « une erreur a eu lieu » ; le détail technique reste dans /admin/collect."""
     from datetime import datetime, timezone
+    from app.routes.system import collect_report
     db.collection_runs.insert_one({"source": "elevators", "started_at": datetime.now(timezone.utc), "ok": False,
                                    "error": "ConnectError: https://secret.interne"})
-    assert client.get(f"{API}/collect/status").json()["elevators"]["last_error"] is True
+    assert collect_report(db, 7)["elevators"]["last_error"] is True
 
 
 def test_create_superadmin_cli(db, outbox):
@@ -161,3 +163,31 @@ def test_create_superadmin_cli(db, outbox):
     msg = create_superadmin(db, "Admin@Exemple.fr")
     assert "envoyé" in msg and outbox[0][0] == "admin@exemple.fr"
     assert db.users.find_one({"email": "admin@exemple.fr"})["role"] == "superadmin"
+
+
+def test_collect_status_is_admin_only(client):
+    assert client.get(f"{API}/collect/status").status_code == 401
+
+
+def test_oversized_request_is_refused(client):
+    pt = {"lat": 48.85, "lon": 2.35, "name": "x" * 1_100_000}
+    assert client.post(f"{API}/trips/plan", json={"origin": pt, "destination": pt}).status_code == 413
+
+
+def test_global_rate_limit_covers_unlimited_routes(client, monkeypatch):
+    from app.core import ratelimit
+    from app.deps import _state
+    _state["limiter"] = ratelimit.RateLimiter({**ratelimit.LIMITS, "global": (3, 60)})
+    codes = [client.get(f"{API}/health").status_code for _ in range(4)]
+    _state.pop("limiter")
+    assert codes == [200, 200, 200, 429]
+
+
+def test_login_limited_per_account_across_addresses(client):
+    from app.core import ratelimit
+    from app.deps import _state
+    _state["limiter"] = ratelimit.RateLimiter({**ratelimit.LIMITS, "login_account": (2, 3600)})
+    body = {"email": "cible@exemple.fr", "password": "mauvais-mot-de-passe"}
+    codes = [client.post(f"{API}/auth/login", json=body).status_code for _ in range(3)]
+    _state.pop("limiter")
+    assert codes == [401, 401, 429]

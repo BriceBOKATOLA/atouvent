@@ -10,6 +10,7 @@ from .core.config import check_secrets, settings
 from .routes import account, admin, elevators, environment, system, transport, velib
 
 API_PREFIX = "/api/v1"
+MAX_BODY = 1_000_000  # 1 Mo : un trajet complet en fait au plus quelques dizaines de Ko
 
 
 @asynccontextmanager
@@ -35,6 +36,26 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT", "DELETE"],
                        allow_headers=["Authorization", "Content-Type"])
+    @app.middleware("http")
+    async def guard_requests(request, call_next):
+        """Filet de sécurité de toute l'API : taille des requêtes et débit par adresse IP (en plus des limites par route)."""
+        from fastapi.responses import JSONResponse
+        from .core.ratelimit import PATH_BUCKETS, client_ip
+        from .deps import limiter_dep
+        path = request.url.path
+        if not path.startswith(API_PREFIX):
+            return await call_next(request)
+        size = request.headers.get("content-length")
+        if size and size.isdigit() and int(size) > MAX_BODY:
+            return JSONResponse({"detail": "payload_too_large"}, status_code=413)
+        ip = client_ip(request)
+        sub_path = path[len(API_PREFIX):]
+        for bucket in ["global", *(b for p, b in PATH_BUCKETS if sub_path.startswith(p))]:
+            wait = limiter_dep().hit(bucket, ip)
+            if wait is not None:
+                return JSONResponse({"detail": "too_many_requests"}, status_code=429, headers={"Retry-After": str(wait)})
+        return await call_next(request)
+
     @app.middleware("http")
     async def security_headers(request, call_next):
         # En-têtes de sécurité sur toutes les réponses de l'API (le site statique les reçoit du serveur web, voir README)

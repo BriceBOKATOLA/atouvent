@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, Query
 
 from ..core.config import settings
-from ..deps import db_dep
+from ..deps import admin_dep, db_dep
 
 router = APIRouter(tags=["système"])
 
@@ -34,6 +34,6 @@ def collect_report(db, days: int, with_errors: bool = False) -> dict:
     return out
 
 
-@router.get("/collect/status")
+@router.get("/collect/status", dependencies=[Depends(admin_dep)])  # fonctionnement interne : admins seulement
 def collect_status(days: int = Query(7, ge=1, le=90), db=Depends(db_dep)):
     return collect_report(db, days)

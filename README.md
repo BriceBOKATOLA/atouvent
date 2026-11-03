@@ -133,6 +133,26 @@ Sous Git Bash (Windows), préfixer par `MSYS_NO_PATHCONV=1` les commandes qui re
 
 Déclaration d'accessibilité : `frontend/public/declaration-accessibilite.html`.
 
+## Sécurité
+
+- **Rôles vérifiés par le serveur** sur chaque route : compte connecté pour `/me…`, administrateur pour `/admin…` et
+  `/collect/status`, super administrateur pour la gestion des comptes et la mise à jour des horaires. Les écrans protégés de
+  l'application (`/compte`, `/admin`, `/donnees`) ne font que refléter ces règles : sans le bon rôle, l'API répond 401 ou 403.
+- **Sessions** : jetons signés (HS256 imposé), durée limitée, révoqués tous ensemble au changement de mot de passe ;
+  mots de passe hachés (scrypt) ; profil de déplacement (donnée de santé) chiffré en base et jamais exposé aux admins.
+- **Anti-abus** : limite par adresse IP sur toute l'API (300 requêtes/min), plus stricte pour le compte, l'administration
+  et le flux en direct, et par route (connexion, inscription, e-mails, itinéraires…) ; 20 essais de connexion par heure et
+  par compte, quelle que soit l'adresse ; requêtes de plus de 1 Mo refusées.
+- **En-têtes** : `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Cache-Control: no-store` sur les
+  données personnelles, HSTS derrière HTTPS ; politique de sécurité du contenu (CSP) dans l'application construite
+  (aucun script extérieur ni en ligne, seules les tuiles IGN et l'API sont joignables).
+- **Configuration** : secrets uniquement dans `backend/.env` (jamais versionné) ; l'API refuse de démarrer sans
+  `JWT_SECRET` et `PROFILE_ENCRYPTION_KEY` solides ; documentation `/docs` coupée par défaut (`ENABLE_DOCS=0`).
+
+## Conception
+
+Charte graphique, maquette des écrans et flyers : `design/README.md` (lien vers le fichier Figma et exports des planches).
+
 ## Données
 
 Toutes les sources, leurs licences et leur fréquence de mise à jour : **`SOURCES.md`**. Points de méthode :

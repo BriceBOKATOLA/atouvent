@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from ..core import security as sec
 from ..core.ratelimit import limit
-from ..deps import db_dep, role_of, user_dep
+from ..deps import db_dep, limiter_dep, role_of, user_dep
 from ..schemas import ChangePassword, ForgotPassword, Login, Preferences, Register, ResetPassword, SavedPlace
 from ..services import mailer
 
@@ -78,6 +78,9 @@ def register(body: Register, db=Depends(db_dep)):
 
 @router.post("/auth/login", dependencies=[Depends(limit("login"))])
 def login(body: Login, db=Depends(db_dep)):
+    # En plus de la limite par adresse IP : 20 essais par heure et par compte (essais répartis sur plusieurs adresses)
+    if limiter_dep().hit("login_account", body.email.lower()) is not None:
+        raise HTTPException(429, "too_many_requests")
     user = db.users.find_one({"email": body.email.lower()})
     # Même coût de calcul que l'adresse existe ou non
     if not sec.check_password_or_dummy(body.password, (user or {}).get("password")):

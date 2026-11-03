@@ -8,9 +8,36 @@ const IGN_TILES = /^https:\/\/data\.geopf\.fr\/wmts/
 // le trajet hors ligne a son propre paquet dans IndexedDB)
 const NO_CACHE = ['/api/v1/me', '/api/v1/admin', '/api/v1/auth', '/api/v1/departures']
 
+/**
+ * Politique de sécurité du contenu (CSP) de l'application construite : seuls l'application elle-même, les tuiles IGN
+ * et l'API (adresse VITE_API_URL pour l'APK) sont autorisés ; aucun script extérieur ni en ligne.
+ * Pas en développement : Vite y injecte des scripts en ligne (rechargement à chaud).
+ */
+function contentSecurityPolicy() {
+  let api = ''
+  return {
+    name: 'atouvent-csp',
+    apply: 'build',
+    configResolved(config) {
+      const url = config.env.VITE_API_URL
+      api = url && /^https?:/.test(url) ? ` ${new URL(url).origin}` : ''
+    },
+    transformIndexHtml(html) {
+      const policy = [
+        "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline'", "font-src 'self' data:",
+        "img-src 'self' data: blob: https://data.geopf.fr", `connect-src 'self' https://data.geopf.fr${api}`,
+        "worker-src 'self' blob:", "manifest-src 'self'", "object-src 'none'", "base-uri 'self'", "form-action 'self'",
+      ].join('; ')
+      return html.replace('<head>', `<head>
+    <meta http-equiv="Content-Security-Policy" content="${policy}" />`)
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     react(),
+    contentSecurityPolicy(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons/*.png'],

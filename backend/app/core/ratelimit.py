@@ -28,7 +28,16 @@ LIMITS = {
     "nearby": (60, 60),          # arrêts, signalements, Vélib' proches
     "report": (10, 10 * 60),     # signalements : 10 par tranche de 10 minutes
     "vote": (30, 10 * 60),
+    "login_account": (20, 60 * 60),  # par compte visé : essais répartis sur plusieurs adresses IP
+    # Filet global (middleware) : toute l'API, puis plus strict pour le compte, l'administration et le flux en direct
+    "global": (300, 60),
+    "account": (60, 60),
+    "admin": (120, 60),
+    "stream": (10, 60),          # ouvertures du flux en direct (une connexion dure longtemps)
 }
+
+# Préfixe de chemin (sous /api/v1) → palier appliqué en plus du filet global
+PATH_BUCKETS = (("/me", "account"), ("/admin", "admin"), ("/stream", "stream"))
 
 
 class RateLimiter:
