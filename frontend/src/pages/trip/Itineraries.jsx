@@ -451,7 +451,8 @@ function ItineraryCard({ it, lines, selected, onPick, onFollow, later, busy, t, 
         </p>
       )}
       {!simple && good.length > 0 && <ul className="it-tags">{good.map((g) => <li key={g}>✓ {g}</li>)}</ul>}
-      {bad.map((x) => <p key={x} className="it-warn"><Icon name="alert" size={16} /> {x}</p>)}
+      {/* Un même point dangereux peut être croisé deux fois : une seule mention */}
+      {[...new Set(bad)].map((x) => <p key={x} className="it-warn"><Icon name="alert" size={16} /> {x}</p>)}
       {selected && (
         <>
           {it.carbon?.saved_g > 0 && <p className="it-eco-year">{t('it.co2_year', { kg: Math.round((it.carbon.saved_g * 2 * 220) / 1000) })}</p>}

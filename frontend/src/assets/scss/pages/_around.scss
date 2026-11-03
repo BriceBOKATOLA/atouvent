@@ -109,7 +109,8 @@
 .climate-now__lines li{display:flex;gap:6px;align-items:center}
 
 /* Position en direct de l'appareil : point bleu cerclé de blanc, avec une pulsation (coupée si « réduire les animations ») */
-.map-wrap{position:relative}
+// Prend toute la hauteur du cadre parent (carte du suivi : 100 %) ; sans cadre dimensionné, la carte garde ses 240 px
+.map-wrap{position:relative;height:100%}
 .map-me{width:18px;height:18px;border-radius:50%;background:var(--bleu);border:3px solid #FFFFFF;box-shadow:0 0 0 2px var(--bleu)}
 .map-me::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--bleu);animation:me-pulse 2s ease-out infinite}
 @keyframes me-pulse{from{transform:scale(.6);opacity:.9}to{transform:scale(1.6);opacity:0}}
