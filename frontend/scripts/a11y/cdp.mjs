@@ -30,10 +30,12 @@ export async function launch({ width = 390, height = 844, port = 9300 + Math.flo
   })
   const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })) })
   // Limite de 60 s par évaluation : une page bloquée est signalée au lieu de figer tout le contrôle
-  const evaluate = (expression) => Promise.race([
-    send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }).then((r) => r.result?.result?.value),
-    sleep(60_000).then(() => { console.log('  ! page bloquée (60 s) : contrôle passé'); return null }),
-  ])
+  const evaluate = (expression) => {
+    let timer
+    const limit = new Promise((r) => { timer = setTimeout(() => { console.log('  ! page bloquée (60 s) : contrôle passé'); r(null) }, 60_000) })
+    const run = send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }).then((r) => r.result?.result?.value)
+    return Promise.race([run, limit]).finally(() => clearTimeout(timer))
+  }
   await send('Runtime.enable'); await send('Page.enable'); await send('Network.enable')
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 700 })
   const origin = new URL(BASE).origin

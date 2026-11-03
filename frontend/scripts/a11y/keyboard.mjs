@@ -24,8 +24,10 @@ for (const path of list) {
       const el = document.activeElement
       if (!el || el === document.body) return null
       const all = ${INTERACTIVE}
-      const cs = getComputedStyle(el)
-      const visibleFocus = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== 'none'
+      const outline = (n) => { const cs = getComputedStyle(n); return cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 }
+      // Le contour peut entourer la carte entière (:has(:focus-visible)) : on regarde aussi le contour des deux parents
+      const visibleFocus = outline(el) || getComputedStyle(el).boxShadow !== 'none'
+        || [el.parentElement, el.parentElement?.parentElement].some((p) => p && outline(p))
       return { index: all.indexOf(el), name: ${DESCRIBE('el')}, skip: el.classList.contains('skip-link'), visibleFocus }
     })()`)
     if (!info) continue

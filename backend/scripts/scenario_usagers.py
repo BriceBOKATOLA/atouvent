@@ -15,6 +15,8 @@ import httpx
 from pymongo import MongoClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# Console Windows : on force l'UTF-8 pour les accents et les flèches
+sys.stdout.reconfigure(encoding="utf-8")
 from app.core import security as sec  # noqa: E402
 from app.core.config import settings  # noqa: E402
 

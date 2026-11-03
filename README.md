@@ -146,6 +146,8 @@ Sous Git Bash (Windows), préfixer par `MSYS_NO_PATHCONV=1` les commandes qui re
 | Compréhensible si l'on ne voit pas certaines couleurs | palettes vérifiées pour le daltonisme ; scénarios de chaleur distingués par leur nom et leur valeur, pas seulement par la teinte |
 | Alternative pertinente pour chaque image | pictogrammes décoratifs masqués (`aria-hidden`), logo avec `title`, cartes avec un titre et la liste des lieux en texte |
 | Titre ou légende pour chaque graphique, carte, schéma | titres et légendes explicites ; chaque graphique a son tableau de valeurs (« Voir les valeurs en tableau ») et un export CSV |
+| Lignes du réseau | chaque pastille porte le nom de la ligne (M1, RER A, T3a) ; la couleur officielle n'est qu'un repère en plus |
+| Perturbations | gravité écrite en toutes lettres (« Trafic interrompu », « Perturbation ») avec un pictogramme, jamais un code rouge / vert seul |
 | Utilisable au clavier seul | `a11y:keyboard` : 100 % des éléments atteints sur tous les écrans, focus visible, lien d'évitement en premier |
 
 Déclaration d'accessibilité : `frontend/public/declaration-accessibilite.html`.
@@ -208,6 +210,25 @@ Toutes les sources, leurs licences et leur fréquence de mise à jour : **`SOURC
   déplace à chaque position, et les données autour (arrêts, Vélib', météo) sont rechargées après 100 m de déplacement.
   Pendant un trajet, chaque position est projetée sur le tracé : « vous avancez », « à l'arrêt », « vous revenez en arrière »,
   et l'arrivée est détectée sans attendre l'usager (`features/trip/motion.js`).
+
+## Outils et langages
+
+| Étape | Outil | Pourquoi |
+|---|---|---|
+| Analyse des données (`analyse/`) | Python, DuckDB | requêtes SQL directement sur les fichiers CSV et Parquet, sans serveur de base à installer |
+| Service (`backend/`) | FastAPI, MongoDB | API rapide et typée ; séries temporelles natives pour les historiques Vélib' et ascenseurs |
+| Calcul d'itinéraire | Python, NumPy (Connection Scan) | horaires GTFS compressés en mémoire, réponse en moins d'une seconde |
+| Interface (`frontend/`) | React, Vite, SCSS, MapLibre | application installable (PWA) et Android ; cartes vectorielles sur fond IGN |
+
+## Pérennité et frugalité
+
+- **Mise à jour sans intervention** : horaires IDFM reconstruits chaque nuit ; Vélib' chaque minute, ascenseurs et trafic toutes
+  les 5 minutes, crues toutes les 15 minutes ; l'état de chaque collecte est suivi (`/collect/status`, écran Supervision).
+- **Réutilisable ailleurs** : le calculateur lit le format standard GTFS, utilisable pour un autre réseau ou une autre ville ;
+  images Docker prêtes à déployer (`docker-compose.yml`).
+- **Sobre** : un seul petit serveur suffit (environ 300 Mo de mémoire pour le calcul d'itinéraires, `--sans-bus` pour moins) ;
+  pas d'apprentissage automatique lourd ; réponses mises en cache ; application utilisable hors connexion dans le métro ;
+  analyses calculées une fois puis servies en fichier statique (`backend/data/chaleur.json`).
 
 ## Routes de l'API (`/api/v1`)
 
