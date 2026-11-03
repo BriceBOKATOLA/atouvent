@@ -305,6 +305,8 @@ export default {
   'live.still': 'Toujours là',
   'live.gone': 'Plus là',
   'live.voted': 'Merci !',
+  'live.sev_block': 'Trafic interrompu',
+  'live.sev_minor': 'Perturbation',
   'live.all_clear': 'Rien à signaler sur votre trajet pour l’instant.',
   'live.report': 'Signaler un problème',
   'live.cancel': 'Annuler',

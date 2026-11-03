@@ -142,7 +142,8 @@ export default function LivePanel({ trip, progress, gps, online, onReplan }) {
       {live?.disruptions.filter((d, i, all) => all.findIndex((x) => x.title === d.title && x.message === d.message) === i).map((d) => (
         <article key={d.id || d.title} className={`live-alert${d.severity === 'BLOQUANTE' ? ' live-alert--block' : ''}`}>
           <Icon name="alert" size={20} />
-          <div><strong>{d.title}</strong>{d.message && <p>{d.message}</p>}</div>
+          {/* Gravité écrite en toutes lettres : la couleur seule ne suffit pas */}
+          <div><span className="live-alert__sev">{t(d.severity === 'BLOQUANTE' ? 'live.sev_block' : 'live.sev_minor')}</span><strong>{d.title}</strong>{d.message && <p>{d.message}</p>}</div>
         </article>
       ))}
       {live?.elevators_out.map((e) => (

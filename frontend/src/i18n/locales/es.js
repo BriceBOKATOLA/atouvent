@@ -305,6 +305,8 @@ export default {
   'live.still': 'Sigue ahí',
   'live.gone': 'Ya no',
   'live.voted': '¡Gracias!',
+  'live.sev_block': 'Servicio interrumpido',
+  'live.sev_minor': 'Incidencia',
   'live.all_clear': 'Nada que señalar en su trayecto por ahora.',
   'live.report': 'Avisar de un problema',
   'live.cancel': 'Cancelar',

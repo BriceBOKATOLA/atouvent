@@ -120,6 +120,7 @@
 .live-alert svg{flex:none;color:var(--braise-fonce)}
 .live-alert p{margin:2px 0 0;color:var(--texte-2)}
 .live-alert--block{background:var(--corail-pale);border-left:4px solid var(--braise-fonce)}
+.live-alert__sev{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--braise-fonce)}
 .reports{list-style:none;display:flex;flex-direction:column;gap:6px;margin:0;padding:0}
 .report{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:center;padding:8px;border-radius:10px;background:var(--surface-2)}
 .report__text{display:flex;flex-direction:column}

@@ -305,6 +305,8 @@ export default {
   'live.still': '仍然存在',
   'live.gone': '已消失',
   'live.voted': '谢谢！',
+  'live.sev_block': '运营中断',
+  'live.sev_minor': '运营受扰',
   'live.all_clear': '您的行程目前一切正常。',
   'live.report': '报告问题',
   'live.cancel': '取消',

@@ -305,6 +305,8 @@ export default {
   'live.still': 'Still there',
   'live.gone': 'Gone',
   'live.voted': 'Thanks!',
+  'live.sev_block': 'Service suspended',
+  'live.sev_minor': 'Disruption',
   'live.all_clear': 'Nothing to report on your trip right now.',
   'live.report': 'Report a problem',
   'live.cancel': 'Cancel',
