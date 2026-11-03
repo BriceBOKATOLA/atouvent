@@ -1,6 +1,4 @@
 // 09 · Analyse décideurs : qui subit la chaleur dans les transports franciliens ?
-// Données préparées par analyse/prepare.py (backend/data/chaleur.json, réservé aux admins), juillet 2025 à juin 2026.
-// Puces d'aléas : chaleur (vue complète, seuil réglable) ; pluie, neige, vent : chiffres, carte et jours concernés.
 import { readableOn } from '../../features/network.js'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api/client.js'

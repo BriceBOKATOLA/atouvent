@@ -1,8 +1,4 @@
-"""Paquet hors ligne d'un trajet : tout ce qu'il faut pour continuer sans réseau sous terre.
-
-Le téléphone l'enregistre avant de descendre. Les avertissements sont des codes,
-traduits côté application dans la langue de l'usager.
-"""
+"""Paquet hors ligne d'un trajet : tout ce qu'il faut pour continuer sans réseau sous terre."""
 from __future__ import annotations
 
 import math
@@ -28,11 +24,7 @@ def elevators_at(db, station: str | None) -> list[dict]:
 
 
 def mark_elevators(db, itinerary: dict) -> dict:
-    """Ajoute les ascenseurs en panne aux gares du trajet.
-
-    Un trajet n'est jamais présenté « sans marche » s'il passe par une gare dont un ascenseur
-    est hors service : le badge serait faux pour une personne en fauteuil.
-    """
+    """Ajoute les ascenseurs en panne aux gares du trajet."""
     stations = {p["name"] for leg in itinerary["legs"] if leg["mode"] != "WALK" for p in (leg["from"], leg["to"])}
     out = []
     for s in sorted(stations):
@@ -100,8 +92,7 @@ def build_bundle(db, trip: dict, guard=None, weather_client=None) -> dict:
 
 
 def annotate_walks(db, itinerary: dict) -> dict:
-    """Étapes à pied et à vélo : ombre des arbres (Paris), chantiers gênants, points noirs piétons et cyclistes
-    (accidents 2021-2024). Le long du chemin réel quand il est connu (IGN), sinon en ligne droite."""
+    """Étapes à pied et à vélo : ombre des arbres (Paris), chantiers gênants, points noirs piétons et cyclistes (accidents 2021-2024)."""
     from ..router import hotspots, shade
     from . import places
     walk_points, spots = [], []
@@ -165,9 +156,7 @@ def _stop_access(place: dict) -> tuple[str, str]:
 
 
 def verify_access(itinerary: dict) -> dict:
-    """Accessibilité en fauteuil vérifiée étape par étape, avec toutes les données disponibles :
-    arrêts (référentiel IDFM, OpenStreetMap), gares (IDFM Accessibilité en gare), véhicule (GTFS), ascenseurs (temps réel).
-    Résultat : itinerary["access"] = {status, issues} ; status = ok | assisted | ko | unknown (aucune donnée sur un arrêt)."""
+    """Accessibilité en fauteuil vérifiée étape par étape, avec toutes les données disponibles : arrêts (référentiel IDFM, OpenStreetMap), gares (IDFM Accessibilité en gare), véhicule (GTFS), ascenseurs (temps réel)."""
     rank = {"ok": 0, "unknown": 1, "assisted": 2, "ko": 3}
     if not any(leg["mode"] not in ("WALK", "BICYCLE") for leg in itinerary["legs"]):
         # Marche ou vélo seuls : aucun arrêt ni véhicule à vérifier, on ne dit rien plutôt que « accessible »

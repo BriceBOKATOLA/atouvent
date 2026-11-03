@@ -1,10 +1,4 @@
-"""Comptes, mots de passe, jetons et chiffrement du profil de déplacement.
-
-Le profil (handicap, sensibilité au climat) est une donnée de santé au sens du RGPD :
-- il n'est enregistré qu'avec un consentement explicite (date conservée) ;
-- il est chiffré en base (Fernet) : une fuite de la base ne le révèle pas ;
-- l'utilisateur peut l'exporter et le supprimer à tout moment.
-"""
+"""Comptes, mots de passe, jetons et chiffrement du profil de déplacement."""
 from __future__ import annotations
 
 import base64
@@ -40,8 +34,7 @@ def check_password(pw: str, stored: str) -> bool:
     return hmac.compare_digest(h, hashlib.scrypt(pw.encode(), salt=salt, n=2 ** 14, r=8, p=1))
 
 
-# Empreinte factice : une connexion avec une adresse inconnue coûte le même temps qu'avec une vraie
-# (sinon le temps de réponse révèle quelles adresses ont un compte)
+# Empreinte factice : une connexion avec une adresse inconnue coûte le même temps qu'avec une vraie (sinon le temps de réponse révèle quelles adresses ont un compte)
 _DUMMY_HASH = hash_password("mot-de-passe-factice")
 
 

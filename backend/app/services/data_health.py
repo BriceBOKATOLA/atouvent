@@ -1,9 +1,4 @@
-"""Santé des données : chaque source est-elle à jour, complète et plausible ?
-
-Pour chaque source : âge de la dernière donnée bonne, seuils « à surveiller » et « périmée », et contrôles de
-plausibilité (nombre de stations Vélib', d'ascenseurs, températures possibles, validité des horaires…).
-Statut : ok, warn (à surveiller) ou ko (périmée ou anormale). Rien n'est inventé : une source sans donnée est ko.
-"""
+"""Santé des données : chaque source est-elle à jour, complète et plausible ?"""
 from __future__ import annotations
 
 import json

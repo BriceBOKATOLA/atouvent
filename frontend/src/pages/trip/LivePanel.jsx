@@ -1,6 +1,4 @@
-// Suivi en direct, façon Waze : carte du trajet avec la position, passage en temps réel à la prochaine montée,
-// perturbations sur les lignes du trajet, ascenseurs en panne et signalements des autres voyageurs (avec vote).
-// Hors ligne, rien n'est appelé : le suivi continue avec les horaires enregistrés (useTripTracker).
+// Suivi en direct, façon Waze : carte du trajet avec la position, passage en temps réel à la prochaine montée, perturbations sur les lignes du trajet, ascenseurs en panne et signalements des autres voyageurs (avec vote).
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../../api/client.js'
 import Icon from '../../components/Icon.jsx'
@@ -70,7 +68,6 @@ export default function LivePanel({ trip, progress, gps, online, onReplan }) {
   const here = gps.status === 'ok' && gps.coords ? gps.coords : null
   const center = here || trip.legs[Math.min(nextLeg, trip.legs.length - 1)].from
   const markers = useMemo(() => [
-    ...(here ? [{ lat: here.lat, lon: here.lon, kind: 'me' }] : []),
     { lat: trip.legs.at(-1).to.lat, lon: trip.legs.at(-1).to.lon, kind: 'dest' },
     // Montées et descentes : pictogramme du mode (M, RER, T, BUS)
     ...trip.legs.filter((l) => !['WALK', 'BICYCLE'].includes(l.mode)).flatMap((l) => {
@@ -113,7 +110,7 @@ export default function LivePanel({ trip, progress, gps, online, onReplan }) {
 
       <Suspense fallback={<div className="map map--trip" />}>
         <div className="map--trip">
-          <MapView center={center} markers={markers} lines={lines} zoom={15} label={t('live.map')} fit={!here} />
+          <MapView center={center} markers={markers} lines={lines} zoom={15} label={t('live.map')} fit={!here} me={here} meLabel={t('map.center_me')} />
         </div>
       </Suspense>
 

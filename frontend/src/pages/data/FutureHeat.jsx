@@ -1,6 +1,4 @@
-// 11 · Prévision : la chaleur à venir. Années types +2,7 °C et +4 °C (TRACC, ADEME / Météo-France) comparées à l'année
-// observée au même endroit (Trappes), puis l'effet attendu gare par gare si les voyageurs réagissent comme aujourd'hui.
-// Données : projections de backend/data/chaleur.json (analyse/projections.py).
+// 11 · Prévision : la chaleur à venir.
 import Icon from '../../components/Icon.jsx'
 import DataTable from '../../components/data/DataTable.jsx'
 import ScenarioBars from '../../components/data/ScenarioBars.jsx'

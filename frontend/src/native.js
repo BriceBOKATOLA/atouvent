@@ -1,6 +1,4 @@
-// Application Android (Capacitor) : comportements propres au téléphone. Sans effet dans le navigateur.
-// - Bouton « Retour » d'Android : revient à l'écran précédent, et ne quitte l'application que depuis l'accueil.
-// - Autorisation de localisation demandée par Android au premier usage (le GPS du navigateur passe ensuite par elle).
+// Application Android (Capacitor) : comportements propres au téléphone.
 import { Capacitor } from '@capacitor/core'
 
 export async function setupNative(navigate) {

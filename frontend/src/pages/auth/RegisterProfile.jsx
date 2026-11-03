@@ -1,5 +1,4 @@
 // 02b · Votre profil (étape 2 sur 2) : une seule question, facultative.
-// Donnée de santé : enregistrée seulement avec un consentement explicite, chiffrée côté serveur.
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import Icon from '../../components/Icon.jsx'

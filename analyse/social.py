@@ -1,11 +1,4 @@
-"""Couche sociale et climatique autour de chaque gare.
-
-- Vulnérabilité à la chaleur (Institut Paris Region, îlots de chaleur urbains 2022) : note de 1 à 9 de jour et de nuit,
-  moyenne pondérée par la surface des îlots dans un rayon de 300 m.
-- Revenus (INSEE Filosofi 2021, carreaux de 200 m) dans un rayon de 500 m : niveau de vie moyen par personne,
-  part des ménages pauvres, personnes de 65 ans et plus. Le niveau de vie est une moyenne, pas une médiane :
-  les carreaux ne donnent que la somme des niveaux de vie.
-"""
+"""Couche sociale et climatique autour de chaque gare."""
 from __future__ import annotations
 
 import json

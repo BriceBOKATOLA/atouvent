@@ -1,5 +1,4 @@
-// Trajet en cours enregistré sur le téléphone (IndexedDB) : il survit à la perte du réseau
-// et à la fermeture de l'application.
+// Trajet en cours enregistré sur le téléphone (IndexedDB) : il survit à la perte du réseau et à la fermeture de l'application.
 import { openDB } from 'idb'
 
 const DB = 'atouvent'

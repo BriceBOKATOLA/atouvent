@@ -1,9 +1,4 @@
-"""Limiteur de débit par adresse IP (fenêtre glissante, en mémoire).
-
-Protège les routes sensibles (connexion, e-mails) et celles qui consomment un quota
-externe (PRIM, Open-Meteo, géocodage). En mémoire : suffisant pour un seul processus
-API ; avec plusieurs instances, passer par Redis ou par le proxy inverse.
-"""
+"""Limiteur de débit par adresse IP (fenêtre glissante, en mémoire)."""
 from __future__ import annotations
 
 import threading

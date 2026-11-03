@@ -1,8 +1,4 @@
-"""Trajets à pied réels dans les rues (calcul d'itinéraire piéton IGN, Géoplateforme, sans clé), avec cache commun.
-
-Remplace la ligne droite des étapes à pied : tracé sur la carte, distance réelle, et points utilisés pour l'ombre
-des arbres et les chantiers. Si le service ne répond pas, on garde la ligne droite (aucune erreur pour l'usager).
-"""
+"""Trajets à pied réels dans les rues (calcul d'itinéraire piéton IGN, Géoplateforme, sans clé), avec cache commun."""
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor

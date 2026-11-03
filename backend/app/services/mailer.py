@@ -1,11 +1,4 @@
-"""Envoi d'e-mails par SMTP (réinitialisation du mot de passe, invitation super admin).
-
-Chaque e-mail part en deux versions : texte brut et HTML aux couleurs d'AtouVent, avec le logo joint
-dans le message (image intégrée « cid: », affichée même quand le lecteur bloque les images distantes).
-
-Configuration dans .env : SMTP_HOST, SMTP_PORT, SMTP_SSL, SMTP_USER, SMTP_PASSWORD, SMTP_FROM.
-Sans SMTP_HOST, l'e-mail n'est pas envoyé : le lien est seulement écrit dans le journal (développement).
-"""
+"""Envoi d'e-mails par SMTP (réinitialisation du mot de passe, invitation super admin)."""
 from __future__ import annotations
 
 import html
@@ -51,8 +44,7 @@ def text(lang: str, key: str, **params) -> str:
 
 
 def render_html(body: str, lang: str, logo_cid: str) -> str:
-    """Version HTML : en-tête nuit avec le logo, paragraphes, le lien devient un bouton (tableaux et styles en ligne
-    pour les lecteurs de messagerie)."""
+    """Version HTML : en-tête nuit avec le logo, paragraphes, le lien devient un bouton (tableaux et styles en ligne pour les lecteurs de messagerie)."""
     url = re.search(r"https?://\S+", body)
     paras = []
     for block in body.split("\n\n"):

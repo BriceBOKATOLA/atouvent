@@ -1,7 +1,6 @@
 // Mixins communs (aucune règle CSS produite ici).
 
 // Bouton ou puce « choisi » (aria-pressed) : fond plein, texte contrasté.
-// Une même règle pour tous les thèmes, avec les couleurs propres à chacun (clair, sombre, contraste renforcé).
 @mixin pressed($bg, $fg) {
   background: $bg;
   border-color: $bg;

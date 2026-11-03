@@ -1,9 +1,4 @@
-"""Points noirs pour les piétons et les cyclistes en Île-de-France (accidents corporels BAAC 2021-2024, ONISR).
-
-Usage : python -m app.router.hotspots   (télécharge les fichiers une fois dans data/raw/baac/, écrit data/hotspots.json)
-Grille de cases d'environ 110 m : nombre d'accidents impliquant un piéton, un cycliste (vélo ou vélo électrique),
-et nombre de victimes tuées ou hospitalisées. Une case est un « point noir » à partir de 4 accidents en 4 ans.
-"""
+"""Points noirs pour les piétons et les cyclistes en Île-de-France (accidents corporels BAAC 2021-2024, ONISR)."""
 from __future__ import annotations
 
 import json

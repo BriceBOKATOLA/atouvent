@@ -1,5 +1,4 @@
 // Réseau francilien vu par l'application : gares, lignes et climatisation (référentiel IDFM).
-// Fichier statique produit par analyse/prepare.py (public/data/gares.json), mis en cache par le service worker.
 import { distance } from './trip/estimate.js'
 
 let cache = null

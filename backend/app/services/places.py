@@ -1,17 +1,4 @@
-"""Lieux utiles autour de l'usager, toutes sources confondues, dans un format commun.
-
-Chaque source est un jeu ouvert téléchargé en entier (quelques centaines à quelques milliers de lieux), normalisé
-une fois par jour et gardé en cache Mongo ; la recherche par distance se fait ensuite en mémoire.
-
-Groupes (onglets de la carte) :
-- fountain : fontaines à boire (Ville de Paris) et fontaines aux arrêts (IDFM) ;
-- cool : îlots de fraîcheur, espaces verts et équipements (piscines, musées, brumisateurs…) (Ville de Paris),
-  et hors de Paris les parcs, squares et bois ouverts au public (Institut Paris Region, 2024) ;
-- toilets : sanisettes (Ville de Paris) et toilettes du réseau RATP (IDFM) ;
-- bike_parking : parkings vélos Véligo et abris en gare (IDFM) ;
-- park_ride : parcs relais (IDFM) ;
-- works : chantiers perturbants (Ville de Paris), aussi signalés sur les trajets à pied.
-"""
+"""Lieux utiles autour de l'usager, toutes sources confondues, dans un format commun."""
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -114,16 +101,13 @@ def _works(r):
 
 
 # Espaces verts hors Paris (Paris est couvert, avec plus de détails, par les îlots de fraîcheur de la Ville).
-# Gardés : ouverts, gratuits, d'au moins 0,3 ha ; écartés : jardins familiaux ou partagés (non ouverts à tous), projets, cimetières,
-# et terrains de sport ou plaines de jeux (peu d'ombre).
 IPR_SKIP = {"Jardin famillial", "Jardin partagé", "Espace vert en projet", "Cimetière paysager", "Jardin non identifié (Ex Jardin potager)",
             "Parc sportif", "Plaine de jeux"}
 IPR_WHERE = "statouvlib='Ouvert' AND entpaylib='Non' AND surftotha>=0.3 AND numdep<>75"
 
 
 def _ring_points(geometry: dict, area_ha: float) -> list[list[float]]:
-    """Points du contour (simplifié par le serveur) : la distance utile est celle de la lisière la plus proche,
-    pas celle du centre (un bois de plusieurs kilomètres a son centre loin de toute entrée)."""
+    """Points du contour (simplifié par le serveur) : la distance utile est celle de la lisière la plus proche, pas celle du centre (un bois de plusieurs kilomètres a son centre loin de toute entrée)."""
     pts = [p for ring in geometry.get("rings", []) for p in ring]
     keep = 60 if area_ha >= 50 else 16
     step = max(1, len(pts) // keep)

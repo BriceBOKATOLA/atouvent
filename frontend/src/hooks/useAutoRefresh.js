@@ -1,5 +1,4 @@
-// Mise à jour automatique sans recharger la page : relance `load` toutes les `ms` millisecondes,
-// seulement quand l'écran est visible et qu'il y a du réseau, et tout de suite au retour sur l'onglet ou du réseau.
+// Mise à jour automatique sans recharger la page : relance `load` toutes les `ms` millisecondes, seulement quand l'écran est visible et qu'il y a du réseau, et tout de suite au retour sur l'onglet ou du réseau.
 import { useEffect, useRef } from 'react'
 
 export function useAutoRefresh(load, ms, deps = []) {

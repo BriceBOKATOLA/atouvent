@@ -19,8 +19,7 @@ export default function Layout() {
   // Application Android : bouton Retour et autorisation de localisation (sans effet dans le navigateur)
   useEffect(() => { setupNative(navigate) }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Première ouverture : choix de la langue avant tout
-  // (le fragment # est gardé : il porte le jeton du lien « nouveau mot de passe »)
+  // Première ouverture : choix de la langue avant tout (le fragment # est gardé : il porte le jeton du lien « nouveau mot de passe »)
   if (!chosen) return <Navigate to="/bienvenue" replace state={{ from: pathname + search + hash }} />
 
   const full = starts(FULL, pathname)

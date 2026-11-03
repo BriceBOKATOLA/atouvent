@@ -12,12 +12,24 @@ export const STYLE = {
   layers: [{ id: 'ign', type: 'raster', source: 'ign' }],
 }
 
-/** markers : [{ lat, lon, label, kind }] · kind = me | velib | stop | report
- *  lines : [{ coords: [[lon, lat], …], color, dashed }] (tracé du trajet, une ligne par étape) */
-export default function MapView({ center, markers = [], label, zoom = 15, lines = null, follow = true, fit = false }) {
+/** Cercle de précision du GPS (polygone de 48 côtés, rayon en mètres) */
+function accuracyCircle({ lat, lon, accuracy }) {
+  const r = Math.max(accuracy || 0, 5)
+  const dLat = r / 111_320
+  const dLon = r / (111_320 * Math.cos((lat * Math.PI) / 180))
+  const ring = Array.from({ length: 49 }, (_, i) => {
+    const a = (i / 48) * 2 * Math.PI
+    return [lon + dLon * Math.cos(a), lat + dLat * Math.sin(a)]
+  })
+  return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [ring] } }
+}
+
+/** markers : [{ lat, lon, label, kind }] · kind = velib | stop | report | dest… me : position en direct de l'appareil { lat, lon, accuracy } (repère qui se déplace et cercle de précision) lines : [{ coords: [[lon, lat], …], color, dashed }] (tracé du trajet, une ligne par étape) */
+export default function MapView({ center, markers = [], label, zoom = 15, lines = null, follow = true, fit = false, me = null, meLabel = '' }) {
   const box = useRef(null)
   const map = useRef(null)
   const pins = useRef([])
+  const mePin = useRef(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -33,6 +45,10 @@ export default function MapView({ center, markers = [], label, zoom = 15, lines 
           paint: { 'line-color': '#FFFFFF', 'line-width': 9 } })
         map.current.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: { 'line-color': ['get', 'color'], 'line-width': 5, 'line-dasharray': ['case', ['get', 'dashed'], ['literal', [1, 1.5]], ['literal', [1, 0]]] } })
+        // Précision du GPS : disque bleu léger autour de la position
+        map.current.addSource('me-accuracy', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } })
+        map.current.addLayer({ id: 'me-accuracy', type: 'fill', source: 'me-accuracy', paint: { 'fill-color': '#1A5C96', 'fill-opacity': 0.12 } })
+        map.current.addLayer({ id: 'me-accuracy-line', type: 'line', source: 'me-accuracy', paint: { 'line-color': '#1A5C96', 'line-width': 1.5 } })
         setReady(true)
       })
     })
@@ -66,6 +82,27 @@ export default function MapView({ center, markers = [], label, zoom = 15, lines 
     })
   }, [ready, center.lat, center.lon, markers, follow, fit])
 
+  // Position en direct : on déplace le repère existant (pas de recréation, pas de recentrage forcé)
+  useEffect(() => {
+    const m = map.current
+    if (!ready) return
+    if (!me) {
+      mePin.current?.remove()
+      mePin.current = null
+      m.getSource('me-accuracy').setData({ type: 'FeatureCollection', features: [] })
+      return
+    }
+    if (!mePin.current) {
+      const el = document.createElement('div')
+      el.className = 'map-me'
+      el.setAttribute('aria-hidden', 'true')
+      mePin.current = new m.maplibregl.Marker({ element: el }).setLngLat([me.lon, me.lat]).addTo(m)
+    } else mePin.current.setLngLat([me.lon, me.lat])
+    m.getSource('me-accuracy').setData(accuracyCircle(me))
+  }, [ready, me?.lat, me?.lon, me?.accuracy]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const centerOnMe = () => me && map.current?.easeTo({ center: [me.lon, me.lat], zoom: Math.max(map.current.getZoom(), 16) })
+
   // Tracé du trajet
   useEffect(() => {
     if (!ready || !lines) return
@@ -74,7 +111,12 @@ export default function MapView({ center, markers = [], label, zoom = 15, lines 
       geometry: { type: 'LineString', coordinates: l.coords } })) })
   }, [ready, lines])
 
-  // La carte est un complément : la même information existe en liste juste en dessous
-  // « region » et non « img » : les boutons de zoom restent atteignables au clavier et au lecteur d'écran
-  return <div ref={box} className="map" role="region" aria-label={label} />
+  // La carte est un complément : la même information existe en liste juste en dessous « region » et non « img » : les boutons de zoom restent atteignables au clavier et au lecteur d'écran
+  return (
+    <div className="map-wrap">
+      <div ref={box} className="map" role="region" aria-label={label} />
+      {/* Recentrer sur sa position : bouton texte, utilisable au clavier */}
+      {me && <button type="button" className="map-locate" onClick={centerOnMe}>{meLabel}</button>}
+    </div>
+  )
 }

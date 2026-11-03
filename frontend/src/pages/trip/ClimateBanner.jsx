@@ -1,5 +1,4 @@
 // Bandeau climat des itinéraires (maquette 04) : aléa prévu à l'heure près et ce que ça change dans le classement.
-// « Orages prévus à 17 h. Les trajets en souterrain et les arrêts abrités passent en premier. »
 import Icon, { HAZARD_ICON } from '../../components/Icon.jsx'
 import { climateItems } from '../../features/climate.js'
 import { useI18n } from '../../i18n/index.jsx'

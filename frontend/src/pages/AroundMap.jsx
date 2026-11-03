@@ -1,6 +1,4 @@
 // 03 · Carte « Autour de moi » : arrêts, Vélib', parkings vélo, fontaines, lieux frais, toilettes, parcs relais, chantiers.
-// Chaque lieu a un pictogramme bien visible sur la carte et la même information dans la liste dessous (clavier,
-// lecteur d'écran) ; « Y aller » ouvre l'itinéraire. Types et détails : features/places.js.
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client.js'
@@ -16,7 +14,7 @@ const SOURCE = { stops: 'it.stops_source', velib: 'map.velib_source', bike_parki
 
 const goTo = (p) => `/itineraires?${new URLSearchParams({ vers: p.name, lat: p.lat, lon: p.lon })}`
 
-export default function AroundMap({ pos, stops, velibs, tab, setTab }) {
+export default function AroundMap({ pos, stops, velibs, tab, setTab, me }) {
   const { t, locale } = useI18n()
   const date = (d) => new Date(d).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
   const [picked, setPicked] = useState(null)
@@ -31,7 +29,6 @@ export default function AroundMap({ pos, stops, velibs, tab, setTab }) {
 
   const list = tab === 'stops' ? stops : tab === 'velib' ? velibs : places[tab] ?? null
   const markers = useMemo(() => [
-    { lat: pos.lat, lon: pos.lon, kind: 'me' },
     ...(list || []).map((x, i) => {
       const k = KIND[kindOf(x, tab)] || KIND.indoor
       return { lat: x.lat, lon: x.lon, kind: tab === 'velib' && !(x.bikes > 0) ? 'tone-empty' : `tone-${k.tone}`,
@@ -52,7 +49,7 @@ export default function AroundMap({ pos, stops, velibs, tab, setTab }) {
         </div>
       </div>
       <Suspense fallback={<div className="map" />}>
-        <MapView center={center} markers={markers} zoom={16} label={t('map.aria')} fit={picked == null} />
+        <MapView center={center} markers={markers} zoom={16} label={t('map.aria')} fit={picked == null} me={me} meLabel={t('map.center_me')} />
       </Suspense>
       <ul className="around-list">
         {list === null && <li className="loading" role="status">{t('app.loading')}</li>}

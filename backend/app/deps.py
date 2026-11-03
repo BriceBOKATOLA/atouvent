@@ -4,7 +4,7 @@ from __future__ import annotations
 import jwt
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, Request
 
 from .core import security as sec
 from .core.config import settings
@@ -34,11 +34,26 @@ def limiter_dep() -> RateLimiter:
     return _state["limiter"]
 
 
-def user_dep(authorization: str = Header(default=""), db=Depends(db_dep)) -> dict:
-    if not authorization.startswith("Bearer "):
+SESSION_COOKIE = "atv_session"
+SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+
+
+def session_token(request: Request, authorization: str = "") -> str | None:
+    """Jeton de session : en-tête « Authorization: Bearer » (application Android) ou cookie HttpOnly (site web)."""
+    if authorization.startswith("Bearer "):
+        return authorization[7:]
+    token = request.cookies.get(SESSION_COOKIE)
+    if token and request.method not in SAFE_METHODS and request.headers.get("x-requested-with") != "AtouVent":
+        raise HTTPException(403, "csrf")
+    return token
+
+
+def user_dep(request: Request, authorization: str = Header(default=""), db=Depends(db_dep)) -> dict:
+    token = session_token(request, authorization)
+    if not token:
         raise HTTPException(401, "auth_required")
     try:
-        claims = sec.read_token(authorization[7:])
+        claims = sec.read_token(token)
         uid = ObjectId(claims["sub"])
     except (jwt.InvalidTokenError, InvalidId, TypeError):
         raise HTTPException(401, "session_expired")
@@ -57,12 +72,10 @@ def role_of(user: dict) -> str:
     return user.get("role", "user")
 
 
-def optional_user_dep(authorization: str = Header(default=""), db=Depends(db_dep)) -> dict | None:
+def optional_user_dep(request: Request, authorization: str = Header(default=""), db=Depends(db_dep)) -> dict | None:
     """Utilisateur connecté s'il y en a un, sinon None (routes ouvertes aussi aux visiteurs)."""
-    if not authorization.startswith("Bearer "):
-        return None
     try:
-        return user_dep(authorization, db)
+        return user_dep(request, authorization, db)
     except HTTPException:
         return None
 

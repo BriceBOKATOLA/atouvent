@@ -14,9 +14,7 @@ router = APIRouter(tags=["environnement"])
 
 @router.get("/weather", dependencies=[Depends(limit("weather"))])
 def weather(lat: float = Query(**LAT), lon: float = Query(**LON), at: datetime | None = None, db=Depends(db_dep)):
-    """Prévision sur 7 jours, conditions de l'heure en cours et aléas détectés (Île-de-France).
-    at : heure de départ d'un trajet à venir ; ajoute les conditions et les aléas prévus à ce moment-là
-    (« at » vaut null au-delà de l'horizon de prévision, environ 7 jours : on ne l'invente pas)."""
+    """Prévision sur 7 jours, conditions de l'heure en cours et aléas détectés (Île-de-France)."""
     try:
         fc = open_meteo.get_forecast(db, lat, lon)
     except httpx.HTTPError:

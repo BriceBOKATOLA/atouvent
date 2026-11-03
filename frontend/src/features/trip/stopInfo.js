@@ -1,6 +1,4 @@
-// Équipements des arrêts d'un trajet (abri, banc, annonces, accessibilité, toilettes, fontaine, chaleur),
-// lus dans leg.from.info / leg.to.info (backend/app/router/amenities.py), et ce qu'ils changent pour l'usager.
-// Valeurs : 1 oui, 0 non, 0.5 en partie ; absent = non renseigné (on ne dit alors rien).
+// Équipements des arrêts d'un trajet (abri, banc, annonces, accessibilité, toilettes, fontaine, chaleur), lus dans leg.from.info / leg.to.info (backend/app/router/amenities.py), et ce qu'ils changent pour l'usager.
 
 const RIDES = new Set(['BUS', 'TRAM', 'SUBWAY', 'RAIL'])
 const HEAT = 'chaleur'
@@ -28,10 +26,7 @@ export function amenityChips(info = {}, mode) {
   return out
 }
 
-/**
- * Conséquences pour cet usager : avertissements, points forts et pénalité (minutes « ressenties ») pour le classement.
- * needs : profil du compte (fauteuil, malvoyant, malentendant, sensible_climat…) ; hazards : aléas du jour à destination.
- */
+/** Conséquences pour cet usager : avertissements, points forts et pénalité (minutes « ressenties ») pour le classement. */
 export function stopNotes(it, { needs = [], hazards = [], flood = false } = {}) {
   const bad = []
   const good = []
@@ -74,8 +69,7 @@ export function stopNotes(it, { needs = [], hazards = [], flood = false } = {}) 
       bad.push({ key: 'stop.warn_no_visual', params: { stop: a.visual === 0 ? l.from.name : l.to.name } })
       penalty += 8
     }
-    // Quai très pollué aux particules : à signaler aux personnes sensibles au climat (souvent aussi à la pollution)
-    // et les jours de pollution annoncée ; on conseille de ne pas attendre longtemps sur le quai
+    // Quai très pollué aux particules : à signaler aux personnes sensibles au climat (souvent aussi à la pollution) et les jours de pollution annoncée ; on conseille de ne pas attendre longtemps sur le quai
     if ((sensitive || hazards.includes('pollution')) && (a.air === 'high' || b.air === 'high')) {
       bad.push({ key: 'stop.warn_air_high', params: { stop: a.air === 'high' ? l.from.name : l.to.name } })
       penalty += 6
@@ -146,10 +140,7 @@ export function stopNotes(it, { needs = [], hazards = [], flood = false } = {}) 
   return { bad, good, penalty }
 }
 
-/**
- * Accessibilité en fauteuil, toujours vérifiée par le serveur (arrêts, gares, véhicule, ascenseurs) : it.access.
- * Renvoie le libellé positif ou la liste des points à connaître, jamais « non vérifiée ».
- */
+/** Accessibilité en fauteuil, toujours vérifiée par le serveur (arrêts, gares, véhicule, ascenseurs) : it.access. */
 export function accessNotes(it) {
   const a = it.access
   if (!a) return { ok: false, issues: [] }

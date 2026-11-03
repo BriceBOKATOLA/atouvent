@@ -1,6 +1,4 @@
-// État de chaque collecte de données sur 7 jours : à jour, en retard ou en échec (toujours écrit, jamais la couleur seule),
-// dernier relevé réussi, taux de réussite et dernière erreur. Une erreur passée dont la source s'est remise
-// (ex. un délai dépassé ponctuel côté Vélib') est indiquée « rétablie » : ce n'est pas un problème en cours.
+// État de chaque collecte de données sur 7 jours : à jour, en retard ou en échec (toujours écrit, jamais la couleur seule), dernier relevé réussi, taux de réussite et dernière erreur.
 import { useEffect, useState } from 'react'
 import { api } from '../../../api/client.js'
 import Icon from '../../../components/Icon.jsx'

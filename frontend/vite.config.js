@@ -4,15 +4,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // Tuiles IGN Plan v2 (Géoplateforme, sans clé)
 const IGN_TILES = /^https:\/\/data\.geopf\.fr\/wmts/
-// Jamais en cache : compte, administration, et horaires en direct (une réponse ancienne serait trompeuse ;
-// le trajet hors ligne a son propre paquet dans IndexedDB)
+// Jamais en cache : compte, administration, et horaires en direct (une réponse ancienne serait trompeuse ; le trajet hors ligne a son propre paquet dans IndexedDB)
 const NO_CACHE = ['/api/v1/me', '/api/v1/admin', '/api/v1/auth', '/api/v1/departures']
 
-/**
- * Politique de sécurité du contenu (CSP) de l'application construite : seuls l'application elle-même, les tuiles IGN
- * et l'API (adresse VITE_API_URL pour l'APK) sont autorisés ; aucun script extérieur ni en ligne.
- * Pas en développement : Vite y injecte des scripts en ligne (rechargement à chaud).
- */
+/** Politique de sécurité du contenu (CSP) de l'application construite : seuls l'application elle-même, les tuiles IGN et l'API (adresse VITE_API_URL pour l'APK) sont autorisés ; aucun script extérieur ni en ligne. */
 function contentSecurityPolicy() {
   let api = ''
   return {
@@ -80,12 +75,11 @@ export default defineConfig({
     }),
   ],
   build: { chunkSizeWarningLimit: 1100 }, // maplibre est chargé à la demande
-  // Le dossier android/ (projet Capacitor) contient une copie de l'application : jamais surveillé ni analysé
-  // Port fixe 5174 (5173 est souvent pris par d'autres projets) : il doit correspondre à APP_URL des liens envoyés par e-mail
-  server: { port: 5174, strictPort: true, proxy: { '/api': 'http://localhost:8000' }, watch: { ignored: ['**/android/**'] } },
+  // Le dossier android/ (projet Capacitor) contient une copie de l'application : jamais surveillé ni analysé Port fixe 5174 (5173 est souvent pris par d'autres projets) : il doit correspondre à APP_URL des liens envoyés par e-mail
+  server: { port: 5174, strictPort: true, proxy: { '/api': 'http://127.0.0.1:8000' }, watch: { ignored: ['**/android/**'] } },
   optimizeDeps: { entries: ['index.html'], include: ['maplibre-gl'] },
   // Worker de MapLibre en module ES (il importe le code partagé de MapLibre)
   worker: { format: 'es' },
-  preview: { proxy: { '/api': 'http://localhost:8000' } },
+  preview: { proxy: { '/api': 'http://127.0.0.1:8000' } },
   test: { environment: 'node' },
 })

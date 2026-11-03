@@ -48,8 +48,20 @@ table{border-collapse:collapse;width:100%}th,td{border:1px solid #DCE2EA;padding
 </ul>
 <p>Aucune donnée n'est vendue ni utilisée à des fins publicitaires. Il n'y a pas de cookie de suivi ni d'outil de mesure d'audience.</p>
 
-<h2>Sur votre téléphone</h2>
-<p>Pour fonctionner sans réseau, l'application garde sur l'appareil : vos réglages, votre session, le trajet en cours et les dernières informations consultées. La déconnexion efface la session, le trajet et ces informations.</p>
+<h2 id="cookies">Cookies et stockage sur votre appareil</h2>
+<p>AtouVent n'utilise <strong>aucun cookie publicitaire, de suivi ou de mesure d'audience</strong>. Le seul cookie est celui de la session, strictement nécessaire pour rester connecté : il est exempté de consentement (article 82 de la loi Informatique et Libertés, recommandations de la CNIL). Aucun bandeau ne vous est donc demandé.</p>
+<table>
+  <caption>Ce que l'application garde sur votre appareil</caption>
+  <thead><tr><th scope="col">Nom</th><th scope="col">Type</th><th scope="col">À quoi il sert</th><th scope="col">Durée</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">atv_session</th><td>Cookie (seulement si vous êtes connecté)</td><td>Vous garder connecté. Il est illisible par les pages (HttpOnly), n'est jamais envoyé depuis un autre site (SameSite=Strict) et ne circule qu'en HTTPS une fois le site en ligne.</td><td>7 jours, ou jusqu'à la déconnexion</td></tr>
+    <tr><th scope="row">atv.lang, atv.prefs, atv.modes, atv.voice</th><td>Stockage local</td><td>Langue, réglages d'affichage et d'accessibilité, modes de transport choisis.</td><td>Jusqu'à ce que vous les changiez</td></tr>
+    <tr><th scope="row">atv.session, atv.user</th><td>Stockage local (seulement si vous êtes connecté)</td><td>Savoir que vous êtes connecté et afficher votre compte sans réseau.</td><td>Jusqu'à la déconnexion</td></tr>
+    <tr><th scope="row">Trajet en cours</th><td>Base locale (IndexedDB)</td><td>Suivre votre trajet sous terre ou sans réseau.</td><td>Jusqu'à la fin du trajet ou la déconnexion</td></tr>
+    <tr><th scope="row">Cache de l'application</th><td>Cache hors ligne</td><td>Ouvrir l'application et la carte sans réseau.</td><td>30 jours au plus</td></tr>
+  </tbody>
+</table>
+<p>La déconnexion efface le cookie de session, le compte gardé sur l'appareil, le trajet et les réponses mises en cache. Vous pouvez aussi tout effacer depuis les réglages de votre navigateur.</p>
 
 <h2>Vos droits</h2>
 <p>Vous pouvez accéder à vos données et les télécharger (« Mon compte » › « Télécharger mes données »), les corriger, les supprimer, retirer votre consentement pour le profil de déplacement, et vous opposer à un traitement. Pour toute demande : [adresse e-mail de contact].</p>

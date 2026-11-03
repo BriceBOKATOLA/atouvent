@@ -99,8 +99,7 @@ def bundle(body: BundleRequest, db=Depends(db_dep), guard=Depends(guard_dep)):
 
 @router.post("/trips/live", dependencies=[Depends(limit("live"))])
 def trip_live(body: LiveRequest, db=Depends(db_dep), guard=Depends(guard_dep)):
-    """Pendant le trajet (toutes les minutes) : perturbations des lignes, passage en temps réel à la prochaine montée,
-    ascenseurs en panne et signalements des autres voyageurs."""
+    """Pendant le trajet (toutes les minutes) : perturbations des lignes, passage en temps réel à la prochaine montée, ascenseurs en panne et signalements des autres voyageurs."""
     return live.live(db, body.trip.model_dump(mode="json", by_alias=True), body.next_leg, guard)
 
 
@@ -150,8 +149,7 @@ def stops_near(lat: float = Query(**LAT), lon: float = Query(**LON), radius_m: i
 @router.get("/stream")
 async def stream(request: Request, lat: float = Query(**LAT), lon: float = Query(**LON),
                  lines: str = Query("", max_length=400, pattern=r"^[A-Za-z0-9,]*$"), db=Depends(db_dep)):
-    """Flux en direct (Server-Sent Events) : climat, perturbations des lignes suivies, ascenseurs, Vélib', signalements.
-    L'application reçoit chaque changement en quelques secondes, sans interroger le serveur."""
+    """Flux en direct (Server-Sent Events) : climat, perturbations des lignes suivies, ascenseurs, Vélib', signalements."""
     from fastapi.responses import StreamingResponse
     from ..services import stream as live_stream
     wanted = {x for x in lines.split(",") if x}

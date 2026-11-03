@@ -1,14 +1,10 @@
-// Navigation au clavier seul (RGAA 7.3 et 10.7, WCAG 2.1.1, 2.1.2, 2.4.3 et 2.4.7) :
-// on appuie sur Tab de proche en proche et on vérifie que
-// - chaque bouton, lien et champ visible de la page reçoit le focus (rien d'inaccessible sans souris) ;
-// - le focus est toujours visible (contour ou ombre qui change) ;
-// - le focus n'est jamais piégé (on finit par revenir au début de la page) ;
-// - le lien d'évitement « Aller au contenu » est le premier élément atteint.
-// Usage : node scripts/a11y/keyboard.mjs   (PAGES, TOKEN)
+// Navigation au clavier seul (RGAA 7.3 et 10.7, WCAG 2.1.1, 2.1.2, 2.4.3 et 2.4.7) : on appuie sur Tab de proche en proche et on vérifie que - chaque bouton, lien et champ visible de la page reçoit le focus (rien d'inaccessible sans souris) ; - le focus est toujours visible (contour ou ombre qui change) ; - le focus n'est jamais piégé (on finit par revenir au début de la page) ; - le lien d'évitement « Aller au contenu » est le premier élément atteint.
 import { launch, pages } from './cdp.mjs'
 
 const INTERACTIVE = `[...document.querySelectorAll('a[href], button:not([disabled]), input:not([type=hidden]):not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])')]
-  .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !el.closest('[inert],.maplibregl-ctrl-attrib') })`
+  .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !el.closest('[inert],.maplibregl-ctrl-attrib')
+    // Contenu d'un bloc repliable fermé : normalement hors du parcours (on ouvre d'abord le bloc, son titre est atteignable)
+    && (!el.closest('details') || el.closest('details').open || el.closest('summary')) })`
 const DESCRIBE = (el) => `(${el} ? (${el}.getAttribute('aria-label') || ${el}.textContent || ${el}.name || ${el}.tagName).trim().replace(/\\s+/g, ' ').slice(0, 40) : '')`
 
 const list = pages(['/', '/itineraires', '/alertes', '/accessibilite', '/compte', '/connexion', '/inscription'])

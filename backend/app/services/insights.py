@@ -1,11 +1,4 @@
-"""Synthèses pour les décideurs, à partir des données collectées par AtouVent et de jeux ouverts complémentaires.
-
-- traffic_history : perturbations relevées toutes les 15 min (PRIM), par ligne et par motif ;
-- elevator_status : historique des pannes d'ascenseurs (IDFM, temps réel collecté), part du temps hors service ;
-- reports : signalements des voyageurs par type et par ligne ;
-- SNCF « accompagnement PMR » : demandes d'assistance par gare d'Île-de-France ;
-- Ville de Paris : comptages vélo quotidiens (veille), comparés au même jour des semaines précédentes.
-"""
+"""Synthèses pour les décideurs, à partir des données collectées par AtouVent et de jeux ouverts complémentaires."""
 from __future__ import annotations
 
 import json

@@ -1,9 +1,5 @@
 """Commandes d'administration.
-
-Créer (ou promouvoir) le super admin et lui envoyer par e-mail un lien pour choisir son mot de passe :
-    python -m app.admin_cli create-superadmin prenom.nom@exemple.fr
-Options : --no-email (affiche le lien au lieu de l'envoyer), --hours 48 (validité du lien)
-"""
+python -m app.admin_cli create-superadmin prenom.nom@exemple.fr"""
 from __future__ import annotations
 
 import secrets

@@ -1,12 +1,4 @@
-"""Qualité de l'air sur les quais du métro et du RER (évaluation Airparif publiée par IDFM, 665 quais).
-
-Source : « Qualité de l'air dans le réseau de transport francilien » (IDFM, données Airparif, licence ODbL).
-Niveaux : pollution faible, moyenne ou élevée aux particules ; « station aérienne » = proche de l'air extérieur.
-
-Rattachement aux arrêts du calculateur :
-- métro : l'identifiant du jeu est celui du quai GTFS (IDFM:463118 ↔ STIF:StopPoint:Q:463118:) ;
-- RER et trains : identifiant de zone (monomodalStopPlace), rattaché par la ligne et la distance (≤ 300 m).
-"""
+"""Qualité de l'air sur les quais du métro et du RER (évaluation Airparif publiée par IDFM, 665 quais)."""
 from __future__ import annotations
 
 import re

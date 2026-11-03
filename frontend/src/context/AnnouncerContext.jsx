@@ -1,5 +1,4 @@
-// Annonces : texte lu par les lecteurs d'écran, voix naturelle (option), vibration (option)
-// et bandeau visuel bien visible (profil malentendant, ou annonce urgente). Une annonce n'utilise jamais la couleur seule.
+// Annonces : texte lu par les lecteurs d'écran, voix naturelle (option), vibration (option) et bandeau visuel bien visible (profil malentendant, ou annonce urgente).
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon.jsx'
 import { useI18n } from '../i18n/index.jsx'

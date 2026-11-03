@@ -1,18 +1,5 @@
 """Aléas climatiques et transports franciliens : préparation des données des écrans 09 à 11.
-
-Méthode (à rappeler dans le pitch) :
-- jours étudiés : jours ouvrés (hors fériés) de juillet 2025 à juin 2026, une année complète ;
-- aléas (Paris-Montsouris, Météo-France) : chaleur (Tmax ≥ seuil), fortes pluies (≥ 10 mm), neige ou verglas,
-  grand froid (Tmin ≤ −5 °C), vent fort (rafales ≥ 16 m/s) ;
-- référence de chaque jour : jours « ordinaires » (sans aucun aléa) du même jour de la semaine, dans les 4 semaines
-  autour, et de même statut scolaire (vacances zone C ou non) : on neutralise la saison et les vacances ;
-- un jour ordinaire dont la fréquentation s'écarte de plus de 7 % de sa référence (grève, incident) en est retiré ;
-- écart = validations du jour / référence − 1. C'est une association, pas un effet prouvé.
-
-Lancer : python analyse/prepare.py   (télécharge les données la première fois)
-Sortie : backend/data/chaleur.json (réservé aux décideurs, servi par /api/v1/admin/analysis)
-        et frontend/public/data/gares.json (public : gares, lignes, climatisation)
-"""
+Lancer : python analyse/prepare.py   (télécharge les données la première fois)"""
 from __future__ import annotations
 
 import json
@@ -34,8 +21,7 @@ OUT_GARES = Path(__file__).resolve().parents[1] / "frontend" / "public" / "data"
 THRESHOLDS = [30, 33, 35, 38]
 DEFAULT_THRESHOLD = 33
 ORDINARY = {"tx": 28.0, "rr": 10.0, "fxi": 16.0}  # sous les seuils d'aléa
-# Vacances scolaires zone C 2025-2026 et pont de l'Ascension (calendrier scolaire, data.education.gouv.fr)
-# L'été est coupé en juillet et août : la fréquentation d'août (semaine du 15) n'a rien à voir avec celle de juillet
+# Vacances scolaires zone C 2025-2026 et pont de l'Ascension (calendrier scolaire, data.education.gouv.fr) L'été est coupé en juillet et août : la fréquentation d'août (semaine du 15) n'a rien à voir avec celle de juillet
 NO_SCHOOL = [("2025-07-05", "2025-07-31"), ("2025-08-01", "2025-08-31"), ("2025-10-18", "2025-11-02"),
              ("2025-12-20", "2026-01-04"), ("2026-02-21", "2026-03-08"), ("2026-04-18", "2026-05-03"), ("2026-05-14", "2026-05-17")]
 WINDOW_DAYS = 42   # référence cherchée jusqu'à 6 semaines autour du jour…
@@ -71,7 +57,6 @@ def load(con: duckdb.DuckDBPyConnection) -> None:
     r = RAW.as_posix()
     csv = "delim=';', header=true, all_varchar=true"
     # Certaines lignes notent l'identifiant de gare « 71370.0 » : on retire le « .0 ».
-    # Le 1er trimestre 2026 nomme la colonne « ida » au lieu de « id_zdc » (même identifiant pour 737 gares sur 745)
     con.sql(f"""create table vald as select strptime(jour, '%Y-%m-%d')::date jour,
         regexp_replace(coalesce(id_zdc, ida), '[.]0$', '') zdc, libelle_arret, categorie_titre titre, nb_vald::bigint n
         from read_csv('{r}/validations_20*.csv', {csv}, union_by_name=true)""")
@@ -86,7 +71,6 @@ def load(con: duckdb.DuckDBPyConnection) -> None:
     con.sql(f"create table arrets as select arrid, zdaid, arrtype, arraccessibility from read_csv('{r}/arrets.csv', {csv})")
     con.sql(f"create table zones as select zdaid, zdcid from read_csv('{r}/zones_arret.csv', {csv})")
     # Gare de validation (zone de correspondance) → lignes qui la desservent.
-    # Métro et tram : stop_id = arrêt ; RER et Transilien : stop_id = zone d'arrêt (monomodalStopPlace)
     con.sql("""create table gare_ligne as
         with s as (select al.*, coalesce(nullif(regexp_extract(stop_id, 'monomodalStopPlace:(\\d+)', 1), ''), a.zdaid) zdaid
                    from al left join arrets a on a.arrid = replace(al.stop_id, 'IDFM:', ''))
@@ -116,8 +100,7 @@ def calendar(con: duckdb.DuckDBPyConnection) -> None:
 
 
 def _pairs(con) -> None:
-    """Jours de référence de chaque jour : les 4 jours ordinaires les plus proches, même jour de la semaine,
-    même période (scolaire, ou même période de vacances), à 6 semaines au plus."""
+    """Jours de référence de chaque jour : les 4 jours ordinaires les plus proches, même jour de la semaine, même période (scolaire, ou même période de vacances), à 6 semaines au plus."""
     con.sql(f"""create or replace table pairs as select jour, rjour from (
         select a.jour, b.jour rjour, row_number() over (partition by a.jour order by abs(datediff('day', a.jour, b.jour))) k
         from jours a join jours b on b.dow = a.dow and b.scolaire = a.scolaire and b.ordinaire and b.jour <> a.jour
@@ -238,8 +221,7 @@ def by_income(stations_: list[dict], t: int) -> list[dict]:
 
 
 def lines_summary(stations_: list[dict]) -> list[dict]:
-    """Par ligne : voyageurs de ses gares un jour ordinaire et écart moyen pondéré les jours de chaleur.
-    Une gare desservie par plusieurs lignes compte pour chacune (les validations ne disent pas quelle ligne est prise)."""
+    """Par ligne : voyageurs de ses gares un jour ordinaire et écart moyen pondéré les jours de chaleur."""
     acc: dict[str, dict] = {}
     for s in stations_:
         if not s["reliable"]:

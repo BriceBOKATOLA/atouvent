@@ -1,6 +1,4 @@
 // Climat maintenant (accueil) : la première information de l'application, claire et chiffrée.
-// Température et ressenti, pluie et rafales de l'heure, aléas à venir avec l'heure, vigilance officielle, crue, air.
-// Toujours du texte avec chaque pictogramme ; l'heure de la donnée est affichée (et signalée si elle est ancienne).
 import { climateItems } from '../features/climate.js'
 import { useI18n } from '../i18n/index.jsx'
 import Icon, { HAZARD_ICON, weatherIcon } from './Icon.jsx'

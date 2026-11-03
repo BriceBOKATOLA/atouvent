@@ -1,6 +1,7 @@
 // Assemblage : fournisseurs de contexte + routeur
 import { Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Splash from './components/Splash.jsx'
 import { AnnouncerProvider } from './context/AnnouncerContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { PrefsProvider } from './context/PrefsContext.jsx'
@@ -20,6 +21,8 @@ export default function App() {
       <AuthProvider>
         <PrefsProvider>
           <AnnouncerProvider>
+            {/* Logo animé à chaque ouverture de l'application */}
+            <Splash />
             <Suspense fallback={<Fallback />}>
               <RouterProvider router={router} />
             </Suspense>

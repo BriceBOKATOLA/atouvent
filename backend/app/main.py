@@ -35,7 +35,7 @@ def create_app() -> FastAPI:
     # Réponses compressées (itinéraires, tracés) : moins de données sur le réseau mobile, affichage plus rapide
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT", "DELETE"],
-                       allow_headers=["Authorization", "Content-Type"])
+                       allow_headers=["Authorization", "Content-Type", "X-Requested-With", "X-AtouVent-Client"])
     @app.middleware("http")
     async def guard_requests(request, call_next):
         """Filet de sécurité de toute l'API : taille des requêtes et débit par adresse IP (en plus des limites par route)."""

@@ -1,8 +1,4 @@
-"""Cache Mongo commun aux services qui interrogent une source externe (météo, crues, lieux, qualité de l'air…).
-
-remember(db, "places_cache", clé, durée, calcul) : renvoie la valeur gardée si elle est récente, sinon la recalcule.
-Si la source ne répond pas, on renvoie la dernière valeur connue plutôt qu'une erreur (stale_ok).
-"""
+"""Cache Mongo commun aux services qui interrogent une source externe (météo, crues, lieux, qualité de l'air…)."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone

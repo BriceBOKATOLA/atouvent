@@ -25,3 +25,6 @@ backend/data/*
 *.log
 .DS_Store
 Thumbs.db
+
+# Jetons des comptes de test gardés par scripts/scenario_usagers.py --keep
+backend/scripts/.jetons.json

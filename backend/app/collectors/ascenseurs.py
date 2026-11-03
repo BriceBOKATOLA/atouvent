@@ -1,14 +1,5 @@
 """Collecte de l'état des ascenseurs (IDFM, jeu « etat-des-ascenseurs »).
-
-Le jeu est publié 3 fois par jour : on interroge toutes les 30 minutes et on ne stocke
-que les changements d'état (plus un battement toutes les 6 heures).
-
-Les noms de colonnes ne sont pas documentés sur le portail : on les reconnaît parmi
-plusieurs candidats. Avant la première vraie collecte, lancer :
-    python -m app.collectors.ascenseurs --inspect
-puis compléter FIELD_CANDIDATES si un champ n'est pas reconnu. L'enregistrement brut
-est toujours conservé, rien n'est perdu.
-"""
+python -m app.collectors.ascenseurs --inspect"""
 from __future__ import annotations
 
 import sys
@@ -58,9 +49,7 @@ NIGHT_END = (6, 30)  # heure de Paris : au-delà, un ascenseur arrêté dans la 
 
 
 def night_stop(status: str, updated, now_local) -> bool:
-    """Arrêt de nuit, pas une panne : IDFM publie « notavailable / liftFailure » pour les ascenseurs coupés à la fermeture
-    des stations (constaté : ~270 entre 0 h et 3 h). On le reconnaît à l'heure du changement d'état (0 h - 6 h) tant que
-    la nuit n'est pas finie."""
+    """Arrêt de nuit, pas une panne : IDFM publie « notavailable / liftFailure » pour les ascenseurs coupés à la fermeture des stations (constaté : ~270 entre 0 h et 3 h)."""
     if status != "hors_service" or not updated or len(str(updated)) < 13:
         return False
     try:

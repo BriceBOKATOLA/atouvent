@@ -1,6 +1,4 @@
-// Tableau de données des écrans décideurs : une définition de colonnes, toujours le même rendu accessible
-// (en-têtes de colonne et de ligne, nombres alignés à droite, défilement horizontal sur petit écran).
-// columns : [{ key, label, num?, format?(valeur, ligne), row? (en-tête de ligne) }]
+// Tableau de données des écrans décideurs : une définition de colonnes, toujours le même rendu accessible (en-têtes de colonne et de ligne, nombres alignés à droite, défilement horizontal sur petit écran).
 export default function DataTable({ columns, rows, caption, empty }) {
   if (!rows?.length) return <p className="dash-note">{empty}</p>
   return (

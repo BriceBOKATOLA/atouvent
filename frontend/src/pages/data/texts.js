@@ -1,5 +1,4 @@
 // Textes des écrans décideurs (09 à 11) : français et anglais.
-// Public : élus, IDFM, jury. Les autres langues de l'application retombent sur le français.
 import { useI18n } from '../../i18n/index.jsx'
 
 const fr = {

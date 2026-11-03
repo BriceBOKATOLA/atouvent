@@ -1,5 +1,4 @@
 // Histogramme simple (une série), accessible : infobulle au survol et au clavier, tableau équivalent.
-// Une valeur null = donnée inconnue (pas de collecte) : aucune barre, jamais zéro.
 import { useState } from 'react'
 
 const W = 640

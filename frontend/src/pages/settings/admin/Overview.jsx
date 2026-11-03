@@ -1,5 +1,4 @@
 // Vue d'ensemble : comptes (total, profils de déplacement, nouveaux, actifs), rôles, signalements des dernières 24 h.
-// Aucun détail personnel : des nombres seulement.
 import { useEffect, useState } from 'react'
 import { api } from '../../../api/client.js'
 import { useI18n } from '../../../i18n/index.jsx'

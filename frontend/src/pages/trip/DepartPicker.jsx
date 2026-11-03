@@ -1,7 +1,4 @@
 // « Quand partir ? » : maintenant, ou à une date et une heure choisies (trajet à venir, jusqu'à 30 jours).
-// Pour un départ à venir, la météo prévue à cette heure-là s'affiche ici (température, ressenti, pluie, rafales),
-// ou un message clair si la prévision ne va pas encore si loin (environ 7 jours).
-// Champs natifs date et heure : utilisables au clavier et lus correctement par les lecteurs d'écran.
 import Icon, { weatherIcon } from '../../components/Icon.jsx'
 
 const MAX_DAYS = 30

@@ -1,7 +1,4 @@
 // Capture d'écran d'une page (vérification visuelle, illustrations du dossier).
-// Usage : node scripts/a11y/shot.mjs <chemin> <fichier.png> [largeur] [hauteur]
-//   FULL=1 : page entière · THEME=dark : thème sombre · HIGH=1 : contraste renforcé · TOKEN : connecté
-//   STEPS="click:sélecteur;wait:1500;eval:code" : actions avant la capture · PROBE=expression : valeur affichée
 import { writeFileSync } from 'node:fs'
 import { launch, sleep } from './cdp.mjs'
 

@@ -44,8 +44,7 @@ const PATHS = {
   car: <><path d="M5 17h14v-5l-2-5H7l-2 5z" /><circle cx="8" cy="17" r="2" /><circle cx="16" cy="17" r="2" /></>,
 }
 
-// Pictogrammes de la charte AtouVent (06_Figma/Charte_07_Pictogrammes) : un par aléa, toujours avec son nom
-// Temps du jour (code WMO) → pictogramme
+// Pictogrammes de la charte AtouVent (06_Figma/Charte_07_Pictogrammes) : un par aléa, toujours avec son nom Temps du jour (code WMO) → pictogramme
 export const weatherIcon = (code, night = false) => (code == null ? 'cloud' : code <= 1 ? (night ? 'moon' : 'sun') : code <= 3 ? 'cloud' : code <= 48 ? 'fog'
   : (code >= 71 && code <= 77) || code === 85 || code === 86 ? 'snow' : code >= 95 ? 'storm' : 'rain')
 

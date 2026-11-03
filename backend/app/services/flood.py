@@ -1,8 +1,4 @@
-"""Vigilance crues officielle (Vigicrues) sur les tronçons de rivière d'Île-de-France, avec cache Mongo.
-
-Niveaux : 1 vert, 2 jaune, 3 orange, 4 rouge. Une alerte « crue » n'est déclenchée qu'à partir du jaune,
-d'après la vigilance publiée par l'État : aucun seuil n'est inventé par AtouVent.
-"""
+"""Vigilance crues officielle (Vigicrues) sur les tronçons de rivière d'Île-de-France, avec cache Mongo."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone

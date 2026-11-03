@@ -29,7 +29,8 @@ def db():
 def client(db):
     deps._state.clear()
     deps._state["db"] = db
-    yield TestClient(create_app())
+    # Client « application Android » : jeton dans la réponse (le mode cookie du site web a ses propres tests)
+    yield TestClient(create_app(), headers={"X-AtouVent-Client": "native"})
     deps._state.clear()
 
 

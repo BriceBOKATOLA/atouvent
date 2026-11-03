@@ -1,10 +1,4 @@
-"""Empreinte carbone d'un trajet (facteurs d'émission officiels ADEME, API Impact CO2, sans clé, cache 30 jours).
-
-Grammes de CO2 équivalent par personne et par kilomètre, cycle de vie compris (construction des véhicules et
-infrastructures, énergie). Comparaison avec le même trajet en voiture thermique seule (distance routière
-estimée à 1,3 fois la ligne droite). Bus : facteur « bus thermique » de l'ADEME, majorant prudent, une partie de la
-flotte francilienne roulant à l'électricité ou au biogaz. Vélib' : facteur « vélo à assistance électrique » (flotte mixte).
-"""
+"""Empreinte carbone d'un trajet (facteurs d'émission officiels ADEME, API Impact CO2, sans clé, cache 30 jours)."""
 from __future__ import annotations
 
 import math

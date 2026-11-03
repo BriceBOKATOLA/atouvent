@@ -1,5 +1,4 @@
 // Mise à jour immédiate des horaires IDFM (super admin) : normalement faite chaque nuit par le collecteur.
-// Le serveur ne télécharge que si IDFM a publié de nouveaux horaires ou si les nôtres expirent bientôt.
 import { useState } from 'react'
 import { api } from '../../../api/client.js'
 import Icon from '../../../components/Icon.jsx'

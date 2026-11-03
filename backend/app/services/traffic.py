@@ -1,8 +1,4 @@
-"""Info trafic en direct (PRIM, « Messages Info Trafic », perturbations en masse), avec cache Mongo.
-
-Chaque perturbation est étiquetée : météo (chaleur, inondation, neige…), accessibilité (ascenseur, escalier mécanique),
-travaux. Le cache de 5 minutes partage une seule requête entre tous les écrans (quota du jeton PRIM).
-"""
+"""Info trafic en direct (PRIM, « Messages Info Trafic », perturbations en masse), avec cache Mongo."""
 from __future__ import annotations
 
 import html

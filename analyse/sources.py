@@ -17,7 +17,6 @@ PARIS = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets"
 PERIOD = ("2025-07-01", "2026-06-30")
 
 # Validations par jour et par gare, réseau ferré (IDFM, publication trimestrielle).
-# Attention : les jeux gardent le nom « 2025 » mais le 1er et le 2e trimestre contiennent 2026 (vérifié le 16/10/2026).
 _V = f"{IDF}/validations-sur-le-reseau-ferre-nombre-de-validations-par-jour-{{}}-trimestre-2025/exports/csv?delimiter=%3B"
 VALIDATIONS = {"2025T3": _V.format("3eme"), "2025T4": _V.format("4eme"), "2026T1": _V.format("1er"), "2026T2": _V.format("2eme")}
 SOURCES = {

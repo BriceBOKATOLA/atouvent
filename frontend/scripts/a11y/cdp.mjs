@@ -1,6 +1,4 @@
 // Pilotage de Chrome sans interface (protocole DevTools) pour les contrôles d'accessibilité d'AtouVent.
-// Aucune dépendance : Node 22 (fetch et WebSocket intégrés) et Google Chrome installé.
-// Variables d'environnement : CHROME (chemin du navigateur), BASE (adresse de l'application, http://localhost:5174 par défaut).
 import { spawn } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -31,7 +29,11 @@ export async function launch({ width = 390, height = 844, port = 9300 + Math.flo
     if (m.method) listeners.forEach((fn) => fn(m))
   })
   const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })) })
-  const evaluate = async (expression) => (await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true })).result?.result?.value
+  // Limite de 60 s par évaluation : une page bloquée est signalée au lieu de figer tout le contrôle
+  const evaluate = (expression) => Promise.race([
+    send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }).then((r) => r.result?.result?.value),
+    sleep(60_000).then(() => { console.log('  ! page bloquée (60 s) : contrôle passé'); return null }),
+  ])
   await send('Runtime.enable'); await send('Page.enable'); await send('Network.enable')
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 700 })
   const origin = new URL(BASE).origin
@@ -44,7 +46,10 @@ export async function launch({ width = 390, height = 844, port = 9300 + Math.flo
     await sleep(800)
     await evaluate(`localStorage.setItem('atv.lang', 'fr');
       ${prefs ? `localStorage.setItem('atv.prefs', ${JSON.stringify(JSON.stringify(prefs))});` : ''}
-      ${token ? `localStorage.setItem('atv.token', ${JSON.stringify(token)});` : "localStorage.removeItem('atv.token');"} 1`)
+      ${token ? "localStorage.setItem('atv.session', '1');" : "localStorage.removeItem('atv.session');"} 1`)
+    // Session : cookie HttpOnly comme celui que pose l'API à la connexion
+    if (token) await send('Network.setCookie', { name: 'atv_session', value: token, url: `${BASE}/api/`, path: '/api', httpOnly: true, sameSite: 'Strict' })
+    else await send('Network.deleteCookies', { name: 'atv_session', url: `${BASE}/api/` })
     await send('Page.navigate', { url: `${BASE}${path}` })
     await sleep(wait)
     // Première ouverture : écran de langue, on le valide puis on revient à la page demandée

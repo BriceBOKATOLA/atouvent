@@ -1,8 +1,4 @@
 // Contrastes (RGAA 3.2 et 3.3, WCAG 1.4.3 et 1.4.11), dans les trois thèmes : clair, sombre, contraste renforcé.
-// - texte : 4,5:1 (3:1 pour le grand texte, ≥ 24 px ou gras ≥ 18,66 px) par rapport au fond réel (fonds semi-transparents composés) ;
-// - composants (boutons, champs, puces, tuiles) : contour ou fond à 3:1 par rapport au fond environnant
-//   (curseurs natifs exclus : piste et poignée sont dessinées par le navigateur, couleur réglée par accent-color).
-// Usage : node scripts/a11y/contrast.mjs   (PAGES="/,/itineraires", MODES="light,dark,high", TOKEN=jeton pour les pages connectées)
 import { launch, pages } from './cdp.mjs'
 
 const CHECK = `(() => {

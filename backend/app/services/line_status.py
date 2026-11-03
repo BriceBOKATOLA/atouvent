@@ -1,8 +1,4 @@
-"""État d'une ligne entière en temps réel (PRIM, Estimated Timetable / SIRI) : retards de tous les trains ou bus.
-
-Pendant le suivi d'un trajet, on sait ainsi si toute la ligne est perturbée, pas seulement le prochain passage.
-Cache commun de 60 s par ligne ; quota PRIM partagé avec les prochains passages (QuotaGuard).
-"""
+"""État d'une ligne entière en temps réel (PRIM, Estimated Timetable / SIRI) : retards de tous les trains ou bus."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta

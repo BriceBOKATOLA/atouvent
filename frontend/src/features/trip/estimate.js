@@ -1,5 +1,4 @@
-// Estimation du trajet sans réseau ni GPS : tout se calcule depuis les horaires enregistrés
-// et l'heure du téléphone. Fonctions pures, testées dans estimate.test.js.
+// Estimation du trajet sans réseau ni GPS : tout se calcule depuis les horaires enregistrés et l'heure du téléphone.
 
 export const MIN = 60_000
 const ms = (iso) => new Date(iso).getTime()
@@ -19,10 +18,7 @@ export function timeline(trip) {
   return trip.legs.flatMap((leg, legIndex) => legPoints(leg).map((p) => ({ ...p, legIndex })))
 }
 
-/**
- * Où en est l'usager ? delayMs > 0 = en retard sur l'horaire (mesuré au retour du GPS).
- * phase : before | waiting | walking | riding | arrived
- */
+/** Où en est l'usager ? */
 export function estimateProgress(trip, now, delayMs = 0) {
   const t = now - delayMs
   const start = ms(trip.start)
@@ -80,10 +76,7 @@ export const ARRIVED_M = 150
 export const ON_TRACK_M = 400
 export const OFF_ROUTE_M = 600
 
-/**
- * Recalage au retour du GPS : compare la position réelle à l'estimation.
- * Renvoie le nouveau retard, et signale l'arrivée ou une sortie du trajet.
- */
+/** Recalage au retour du GPS : compare la position réelle à l'estimation. */
 export function recalibrate(trip, now, coords, delayMs = 0) {
   const dest = trip.legs[trip.legs.length - 1].to
   if (distance(coords, dest) <= ARRIVED_M) return { arrived: true, offRoute: false, delayMs }
@@ -101,10 +94,7 @@ export function localWarnings(trip) {
   return trip.legs.flatMap((leg, i) => (leg.underground ? [{ code: 'underground', leg: i, station: leg.from.name, at: leg.start }] : []))
 }
 
-/**
- * Annonces à faire maintenant. Règle : chaque changement est annoncé AVANT qu'il arrive.
- * done : ensemble des identifiants déjà annoncés (pour ne jamais répéter).
- */
+/** Annonces à faire maintenant. */
 export function dueAnnouncements({ trip, warnings }, progress, now, done, { warnBefore = true } = {}) {
   const out = []
   const push = (id, key, params = {}, urgent = false) => { if (!done.has(id)) out.push({ id, key, params, urgent }) }

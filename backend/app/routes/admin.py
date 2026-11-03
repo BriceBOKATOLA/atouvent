@@ -1,8 +1,4 @@
-"""Administration : statistiques, gestion des comptes et des rôles, détail de la collecte.
-
-Les admins voient les statistiques et la collecte ; seul le super admin gère les comptes.
-Le profil de déplacement (donnée de santé) n'est jamais exposé ici.
-"""
+"""Administration : statistiques, gestion des comptes et des rôles, détail de la collecte."""
 from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime, timedelta, timezone
@@ -68,8 +64,7 @@ def gtfs_refresh():
 
 @router.get("/insights/{topic}", dependencies=[Depends(admin_dep)])
 def insights_topic(topic: str, db=Depends(db_dep)):
-    """Synthèses décideurs : traffic (perturbations collectées), elevators (fiabilité), reports (signalements),
-    pmr (assistance SNCF), bike (comptages vélo Paris)."""
+    """Synthèses décideurs : traffic (perturbations collectées), elevators (fiabilité), reports (signalements), pmr (assistance SNCF), bike (comptages vélo Paris)."""
     from ..services import insights
     fn = {"traffic": insights.traffic_history, "elevators": insights.elevator_reliability, "reports": insights.reports_stats,
           "pmr": insights.pmr_assistance, "bike": insights.bike_counts}.get(topic)

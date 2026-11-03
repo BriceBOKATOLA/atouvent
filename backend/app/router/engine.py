@@ -1,10 +1,4 @@
-"""Calcul d'itinéraires sur les horaires GTFS IDFM (métro, RER, Transilien, tram, bus), algorithme « Connection Scan ».
-
-Principe : les liaisons entre deux arrêts consécutifs de chaque course sont triées par heure de départ ;
-on les parcourt une fois en gardant, pour chaque arrêt, l'heure d'arrivée la plus tôt. Marche à pied
-au départ, aux correspondances (transfers.txt et arrêts voisins) et à l'arrivée.
-Mode sans marche : seulement les courses et les quais déclarés accessibles en fauteuil dans le GTFS.
-"""
+"""Calcul d'itinéraires sur les horaires GTFS IDFM (métro, RER, Transilien, tram, bus), algorithme « Connection Scan »."""
 from __future__ import annotations
 
 import json
@@ -24,8 +18,7 @@ DATA = Path(__file__).resolve().parents[2] / "data"
 PARIS = ZoneInfo("Europe/Paris")
 WALK_MS = 1.25 / 1.3      # 4,5 km/h, avec 30 % de détour par rapport à la ligne droite
 WALK_MAX_M = 1000          # marche au départ et à l'arrivée
-# Zone peu desservie (grande couronne) : sans arrêt à 1 km, on élargit jusqu'à 2 puis 3 km plutôt que de ne rien proposer ;
-# sans gare à 1 km, les gares jusqu'à 3 km sont ajoutées (les bus de campagne ne roulent souvent pas le soir ni le dimanche)
+# Zone peu desservie (grande couronne) : sans arrêt à 1 km, on élargit jusqu'à 2 puis 3 km plutôt que de ne rien proposer ; sans gare à 1 km, les gares jusqu'à 3 km sont ajoutées (les bus de campagne ne roulent souvent pas le soir ni le dimanche)
 WALK_RADII = (WALK_MAX_M, 2000, 3000)
 RAIL_REACH_M = 3000
 BOARD_S = 60               # temps minimal pour changer de train sur un même quai
@@ -125,8 +118,7 @@ class Network:
         return {int(i): self.access(int(i), lat, lon, float(d[i]), factor)[0] for i in np.nonzero(ok)[0]}
 
     def access(self, i: int, lat: float, lon: float, dist: float, factor: float = 1.0) -> tuple[int, str | None]:
-        """Temps pour rejoindre le quai i depuis un point : par l'entrée la plus rapide (couloirs IDFM, pathways.txt)
-        quand la gare en a, sinon en ligne droite jusqu'au quai. Renvoie (secondes, nom de l'entrée)."""
+        """Temps pour rejoindre le quai i depuis un point : par l'entrée la plus rapide (couloirs IDFM, pathways.txt) quand la gare en a, sinon en ligne droite jusqu'au quai."""
         best, name = int(dist / WALK_MS * factor), None
         for e_name, e_lat, e_lon, secs in self.info[i].get("entrances", ()):
             t = int((distance_m((lat, lon), (e_lat, e_lon)) / WALK_MS + secs) * factor)
@@ -153,8 +145,7 @@ class Network:
 
     def earliest(self, origin, dest, t0: int, day: date, wheelchair: bool, bus: bool = False, rail: bool = True,
                  factor: float = 1.0, blocked=None):
-        """Une recherche : arrivée la plus tôt en partant à t0 (secondes depuis minuit, heure de Paris).
-        blocked : arrêts où l'on ne peut ni monter ni descendre (gare dont l'ascenseur est en panne) ; on peut y rester à bord."""
+        """Une recherche : arrivée la plus tôt en partant à t0 (secondes depuis minuit, heure de Paris)."""
         idx, dep, arr = self.day_connections(day, wheelchair, bus, rail)
         start, goal = self.near(*origin, wheelchair, factor, blocked), self.near(*dest, wheelchair, factor, blocked)
         if not start or not goal:
@@ -263,22 +254,25 @@ SEARCH_SKIP = {"gare", "station", "de", "du", "des", "la", "le", "les", "d", "l"
 KIND_LABEL = {"rail": "Train", "metro": "Métro", "tram": "Tram"}
 
 
+def _station_index(net: Network) -> list[tuple[int, str, list[str], str]]:
+    """Noms des gares déjà découpés en mots, calculés une fois par réseau (la recherche passe de 0,2 s à quelques ms)."""
+    if getattr(net, "_stations", None) is None:
+        net._stations = [(i, s["name"], _norm(s["name"]), net.info[i].get("kind"))
+                         for i, s in enumerate(net.stops) if net.info[i].get("kind") in KIND_LABEL]
+    return net._stations
+
+
 def find_stations(q: str, limit: int = 3) -> list[dict]:
-    """Gares et stations (métro, RER, train, tram) dont le nom correspond à la recherche, avec leurs lignes.
-    Les bus sont laissés à la recherche d'adresses (trop d'arrêts homonymes)."""
+    """Gares et stations (métro, RER, train, tram) dont le nom correspond à la recherche, avec leurs lignes."""
     words = [w for w in _norm(q) if w not in SEARCH_SKIP] or _norm(q)
     if not words:
         return []
     net = network()
     found: dict[str, dict] = {}
-    for i, s in enumerate(net.stops):
-        kind = net.info[i].get("kind")
-        if kind not in KIND_LABEL:
-            continue
-        name_words = _norm(s["name"])
+    for i, name, name_words, kind in _station_index(net):
         if not all(any(_close(w, n) for n in name_words) for w in words):
             continue
-        st = found.setdefault(s["name"], {"name": s["name"], "pts": [], "lines": {}, "exact": 0})
+        st = found.setdefault(name, {"name": name, "pts": [], "lines": {}, "exact": 0})
         st["pts"].append((float(net.lat[i]), float(net.lon[i])))
         st["exact"] = max(st["exact"], sum(w in name_words for w in words))
         for line in net.info[i].get("lines", []):
@@ -374,8 +368,7 @@ def to_itinerary(net: Network, raw: dict, origin, dest, day: date, origin_name: 
 def plan(origin, dest, when: datetime, wheelchair: bool = False, count: int = 3,
          origin_name: str = "Départ", dest_name: str = "Arrivée", bus: bool = True, rail: bool = True,
          slow: bool = False, avoid: set[str] | None = None) -> list[dict]:
-    """Jusqu'à `count` itinéraires : le plus tôt, puis en partant après le premier train de chaque solution.
-    avoid : noms de gares à éviter (ni montée ni descente), par exemple un ascenseur en panne pour un fauteuil."""
+    """Jusqu'à `count` itinéraires : le plus tôt, puis en partant après le premier train de chaque solution."""
     net = network()
     blocked = np.array([s["name"] in avoid for s in net.stops], dtype=bool) if avoid else None
     local = when.astimezone(PARIS)

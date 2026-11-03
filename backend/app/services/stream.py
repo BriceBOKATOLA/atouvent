@@ -1,12 +1,4 @@
-"""Flux en direct (Server-Sent Events) : le serveur pousse chaque changement à l'application, sans attendre qu'elle demande.
-
-Toutes les 3 s, on compare une « version » de chaque source (date de la dernière écriture en base) ; seule une
-source qui a changé est renvoyée. Les données viennent de la collecte (worker) et des caches : ce flux ne fait aucun
-appel externe supplémentaire, sauf l'info trafic (cache 5 min) tenue à jour pour tous les abonnés.
-
-Événements : climate (aléas, vigilance, crue, air), traffic (perturbations des lignes suivies), elevators (pannes),
-velib (stations proches), reports (signalements proches). Un commentaire « : ping » toutes les 15 s garde la connexion.
-"""
+"""Flux en direct (Server-Sent Events) : le serveur pousse chaque changement à l'application, sans attendre qu'elle demande."""
 from __future__ import annotations
 
 import asyncio

@@ -1,5 +1,4 @@
-// 10 · Données collectées par AtouVent et jeux ouverts complémentaires, pour les décideurs :
-// perturbations par ligne, fiabilité des ascenseurs, signalements des voyageurs, assistance PMR SNCF, vélo à Paris.
+// 10 · Données collectées par AtouVent et jeux ouverts complémentaires, pour les décideurs : perturbations par ligne, fiabilité des ascenseurs, signalements des voyageurs, assistance PMR SNCF, vélo à Paris.
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client.js'
 import Icon from '../../components/Icon.jsx'

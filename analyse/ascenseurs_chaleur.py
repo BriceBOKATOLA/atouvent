@@ -1,9 +1,4 @@
-"""Pannes d'ascenseurs selon la température du jour (historique Dispotrains 2013-2023, Météo-France).
-
-Dispotrains a relevé l'état de chaque ascenseur des gares d'Île-de-France plusieurs fois par jour.
-Pour chaque jour : part du temps de service (6 h - 22 h) où les ascenseurs étaient hors service ou perturbés,
-puis moyenne par tranche de température maximale à Paris-Montsouris.
-"""
+"""Pannes d'ascenseurs selon la température du jour (historique Dispotrains 2013-2023, Météo-France)."""
 from __future__ import annotations
 
 import duckdb

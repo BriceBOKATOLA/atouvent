@@ -1,6 +1,4 @@
-// Flux en direct (Server-Sent Events) : le serveur pousse chaque changement (climat, perturbations, ascenseurs,
-// Vélib', signalements) en quelques secondes, sans que l'application ait à redemander.
-// Reconnexion automatique (EventSource) ; hors ligne ou flux indisponible, les rafraîchissements périodiques prennent le relais.
+// Flux en direct (Server-Sent Events) : le serveur pousse chaque changement (climat, perturbations, ascenseurs, Vélib', signalements) en quelques secondes, sans que l'application ait à redemander.
 import { useEffect, useRef } from 'react'
 import { API_BASE } from '../api/client.js'
 

@@ -5,11 +5,12 @@ from datetime import datetime, timezone
 import jwt
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 
 from ..core import security as sec
 from ..core.ratelimit import limit
-from ..deps import db_dep, limiter_dep, role_of, user_dep
+from ..core.config import settings
+from ..deps import SESSION_COOKIE, db_dep, limiter_dep, role_of, user_dep
 from ..schemas import ChangePassword, ForgotPassword, Login, Preferences, Register, ResetPassword, SavedPlace
 from ..services import mailer
 
@@ -19,8 +20,7 @@ MAX_PLACES = 10
 
 
 def profile_defaults(profile: list[str]) -> dict:
-    """Réglages activés d'office selon le profil (l'usager peut ensuite les changer) :
-    malvoyant → voix, contraste renforcé, grand texte ; malentendant → vibration."""
+    """Réglages activés d'office selon le profil (l'usager peut ensuite les changer) : malvoyant → voix, contraste renforcé, grand texte ; malentendant → vibration."""
     p = set(profile)
     out = {}
     if "malvoyant" in p:
@@ -44,8 +44,15 @@ def public(user: dict) -> dict:
             "settings": sec.settings_for(profile), "first_screen": sec.first_screen(profile)}
 
 
-def session(user: dict) -> dict:
-    return {"token": sec.make_token(str(user["_id"]), user.get("token_version", 0)), "user": public(user)}
+def session(user: dict, request: Request, response: Response) -> dict:
+    """Ouvre une session."""
+    token = sec.make_token(str(user["_id"]), user.get("token_version", 0))
+    response.set_cookie(SESSION_COOKIE, token, max_age=settings.jwt_minutes * 60, httponly=True, samesite="strict",
+                        secure=settings.secure_cookies, path="/api")
+    out = {"user": public(user)}
+    if request.headers.get("x-atouvent-client") == "native":
+        out["token"] = token
+    return out
 
 
 def check(p: Preferences | Register) -> None:
@@ -60,7 +67,7 @@ def check(p: Preferences | Register) -> None:
 
 
 @router.post("/auth/register", dependencies=[Depends(limit("register"))])
-def register(body: Register, db=Depends(db_dep)):
+def register(body: Register, request: Request, response: Response, db=Depends(db_dep)):
     check(body)
     email = body.email.lower()
     if db.users.find_one({"email": email}):
@@ -73,11 +80,11 @@ def register(body: Register, db=Depends(db_dep)):
         doc["profile_consent_at"] = now
         doc.update(profile_defaults(body.profile))
     uid = db.users.insert_one(doc).inserted_id
-    return session(db.users.find_one({"_id": uid}))
+    return session(db.users.find_one({"_id": uid}), request, response)
 
 
 @router.post("/auth/login", dependencies=[Depends(limit("login"))])
-def login(body: Login, db=Depends(db_dep)):
+def login(body: Login, request: Request, response: Response, db=Depends(db_dep)):
     # En plus de la limite par adresse IP : 20 essais par heure et par compte (essais répartis sur plusieurs adresses)
     if limiter_dep().hit("login_account", body.email.lower()) is not None:
         raise HTTPException(429, "too_many_requests")
@@ -86,7 +93,14 @@ def login(body: Login, db=Depends(db_dep)):
     if not sec.check_password_or_dummy(body.password, (user or {}).get("password")):
         raise HTTPException(401, "bad_credentials")
     db.users.update_one({"_id": user["_id"]}, {"$set": {"last_login_at": datetime.now(timezone.utc)}})
-    return session(user)
+    return session(user, request, response)
+
+
+@router.post("/auth/logout")
+def logout(response: Response):
+    """Déconnexion de cet appareil : le cookie de session est effacé (les autres appareils restent connectés)."""
+    response.delete_cookie(SESSION_COOKIE, path="/api", httponly=True, samesite="strict", secure=settings.secure_cookies)
+    return {"ok": True}
 
 
 @router.post("/auth/forgot-password", dependencies=[Depends(limit("email"))])
@@ -103,7 +117,7 @@ def forgot_password(body: ForgotPassword, tasks: BackgroundTasks, db=Depends(db_
 
 
 @router.post("/auth/reset-password", dependencies=[Depends(limit("login"))])
-def reset_password(body: ResetPassword, db=Depends(db_dep)):
+def reset_password(body: ResetPassword, request: Request, response: Response, db=Depends(db_dep)):
     try:
         claims = sec.read_reset_token(body.token)
         user = db.users.find_one({"_id": ObjectId(claims["sub"])})
@@ -113,17 +127,18 @@ def reset_password(body: ResetPassword, db=Depends(db_dep)):
         raise HTTPException(400, "reset_invalid")
     db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password)},
                                                "$inc": {"token_version": 1}})
-    return session(db.users.find_one({"_id": user["_id"]}))
+    return session(db.users.find_one({"_id": user["_id"]}), request, response)
 
 
 @router.post("/me/password", dependencies=[Depends(limit("login"))])
-def change_password(body: ChangePassword, user=Depends(user_dep), db=Depends(db_dep)):
+def change_password(body: ChangePassword, request: Request, response: Response, user=Depends(user_dep),
+                    db=Depends(db_dep)):
     if not sec.check_password(body.current_password, user["password"]):
         raise HTTPException(401, "bad_credentials")
     db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password)},
                                                "$inc": {"token_version": 1}})
     # Les autres appareils sont déconnectés ; celui-ci reçoit un nouveau jeton
-    return session(db.users.find_one({"_id": user["_id"]}))
+    return session(db.users.find_one({"_id": user["_id"]}), request, response)
 
 
 @router.get("/me")
@@ -174,9 +189,10 @@ def export(user=Depends(user_dep)):
 
 
 @router.delete("/me")
-def delete_me(user=Depends(user_dep), db=Depends(db_dep)):
+def delete_me(response: Response, user=Depends(user_dep), db=Depends(db_dep)):
     if role_of(user) == "superadmin":
         # Le super admin défini dans SUPERADMIN_EMAILS serait recréé : on le retire d'abord de la configuration
         raise HTTPException(409, "superadmin_cannot_delete")
     db.users.delete_one({"_id": user["_id"]})
+    response.delete_cookie(SESSION_COOKIE, path="/api")
     return {"deleted": True}

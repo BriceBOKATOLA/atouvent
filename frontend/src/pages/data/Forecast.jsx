@@ -1,5 +1,4 @@
-// 11 · Prévision et risques : 7 jours, fréquentation attendue demain, lignes à surveiller (maquette 11),
-// puis la chaleur à venir (années types +2,7 °C et +4 °C) gare par gare
+// 11 · Prévision et risques : 7 jours, fréquentation attendue demain, lignes à surveiller (maquette 11), puis la chaleur à venir (années types +2,7 °C et +4 °C) gare par gare
 import { readableOn } from '../../features/network.js'
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client.js'

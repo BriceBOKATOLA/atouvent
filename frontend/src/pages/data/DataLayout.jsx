@@ -1,5 +1,4 @@
 // Cadre des écrans décideurs (09 à 11) : grand écran, en-tête sombre avec onglets, sans navigation mobile.
-// Réservés aux comptes admin et super admin : les usagers n'y ont pas accès.
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom'
 import Forbidden from '../../components/Forbidden.jsx'
 import Logo from '../../components/Logo.jsx'
@@ -46,7 +45,14 @@ export default function DataLayout() {
   if (!chosen) return <Navigate to="/bienvenue" replace state={{ from: pathname }} />
   if (!ready) return <p className="loading" role="status">{t('app.loading')}</p>
   if (!user) return <Navigate to="/connexion" replace state={{ from: pathname }} />
-  if (!isAdmin(user)) return <Forbidden reason="err.deciders_only" />
+  if (!isAdmin(user)) {
+    return (
+      <>
+        <a className="skip-link" href="#contenu">{t('app.skip')}</a>
+        <Forbidden reason="err.deciders_only" />
+      </>
+    )
+  }
   return (
     // Écrans en français ou en anglais seulement : lang le dit aux lecteurs d'écran
     <div className="dash" lang={lang}>

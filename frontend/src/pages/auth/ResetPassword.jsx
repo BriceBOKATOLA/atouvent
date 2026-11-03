@@ -1,5 +1,4 @@
 // Nouveau mot de passe, depuis le lien reçu par e-mail (/mot-de-passe/nouveau#jeton).
-// Le jeton est dans le fragment (#) : il n'est jamais envoyé au serveur web ni gardé dans les journaux.
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHead from '../../components/PageHead.jsx'

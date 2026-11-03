@@ -1,5 +1,4 @@
 // Nuage de points : écart de fréquentation (%) selon la température maximale du jour.
-// Deux séries (réseau ferré, vélo) sur un seul axe ; infobulle au survol, tableau équivalent en dessous.
 import { useState } from 'react'
 
 const W = 560

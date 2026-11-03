@@ -1,6 +1,5 @@
-// 04 · Itinéraires : départ (position GPS proposée, ou adresse saisie), destination, modes (ferré, bus, vélo, marche),
-// trajet recommandé selon le profil, la météo et le temps de chaque étape (marche, attente, trajet), enregistrement avant de partir
-import { useEffect, useState } from 'react'
+// 04 · Itinéraires : départ (position GPS proposée, ou adresse saisie), destination, modes (ferré, bus, vélo, marche), trajet recommandé selon le profil, la météo et le temps de chaque étape (marche, attente, trajet), enregistrement avant de partir
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../../api/client.js'
 import Icon from '../../components/Icon.jsx'
@@ -91,8 +90,7 @@ export default function Itineraries() {
 
   const gps = inIdf(geo.coords) ? { lat: geo.coords.lat, lon: geo.coords.lon, name: t('it.my_position') } : null
   const origin = from || gps || PARIS
-  // Le GPS répond souvent après le premier affichage : on recalcule dès que le départ bouge de plus de ~100 m
-  // (arrondi à 3 décimales, pour ne pas recalculer à chaque petit saut du GPS)
+  // Le GPS répond souvent après le premier affichage : on recalcule dès que le départ bouge de plus de ~100 m (arrondi à 3 décimales, pour ne pas recalculer à chaque petit saut du GPS)
   const originKey = `${origin.lat.toFixed(3)},${origin.lon.toFixed(3)}`
   const toggleMode = (m) => {
     const next = modes.includes(m) ? modes.filter((x) => x !== m) : [...modes, m]
@@ -100,9 +98,16 @@ export default function Itineraries() {
     setModes(next)
     storage.setJSON('atv.modes', next)
   }
+  // Recherches déjà faites gardées le temps de la page : retaper ou effacer une lettre ne relance rien
+  const searches = useRef(new Map())
+  const lookup = (q) => {
+    const key = q.trim().toLowerCase()
+    if (!searches.current.has(key)) searches.current.set(key, api.geoSearch(q).catch((x) => { searches.current.delete(key); throw x }))
+    return searches.current.get(key)
+  }
   const findOrigin = async () => {
     setError('')
-    try { setFromPlaces(await api.geoSearch(fromQuery)) } catch (x) { setError(err(x.code)) }
+    try { setFromPlaces(await lookup(fromQuery)) } catch (x) { setError(err(x.code)) }
   }
   const pickOrigin = (p) => {
     setFrom(p)
@@ -116,8 +121,7 @@ export default function Itineraries() {
   const noAc = (it) => acOf(it).filter((l) => l.ref.ac === 'false').length
   const outdoor = hazards.filter((h) => OUTDOOR_RISK.includes(h))
 
-  // Note de chaque trajet (plus petit = meilleur), en minutes « ressenties » :
-  // durée + correspondances + marche et attente (pondérées selon le profil) + aléas du jour
+  // Note de chaque trajet (plus petit = meilleur), en minutes « ressenties » : durée + correspondances + marche et attente (pondérées selon le profil) + aléas du jour
   const score = (it) => {
     const b = breakdown(it)
     let s = minutes(it) + 4 * b.changes + b.walk * (slow ? 1.5 : 0.3) + b.wait * 0.5
@@ -131,8 +135,7 @@ export default function Itineraries() {
     s += (it.carbon?.co2_g ?? 0) / 100  // l'écologie compte aussi dans la recommandation
     return s
   }
-  // Écologique : le moins de CO2 d'abord, mais jamais au mépris du climat ou du profil (orage, canicule, fauteuil…) :
-  // les pénalités climat et profil du score restent ; 10 g de CO2 pèsent comme 1 min
+  // Écologique : le moins de CO2 d'abord, mais jamais au mépris du climat ou du profil (orage, canicule, fauteuil…) : les pénalités climat et profil du score restent ; 10 g de CO2 pèsent comme 1 min
   const ecoScore = (it) => (it.carbon?.co2_g ?? 0) / 10 + score(it) * 0.6
   const minCo2 = its?.length ? Math.min(...its.map((x) => x.carbon?.co2_g ?? Infinity)) : null
   const SORTS = {
@@ -150,9 +153,25 @@ export default function Itineraries() {
     setError('')
     setDest(null)
     setIts(null)
-    try { setPlaces(await api.geoSearch(query)) } catch (x) { setError(err(x.code)) }
+    try { setPlaces(await lookup(query)) } catch (x) { setError(err(x.code)) }
   }
   useEffect(() => { if (query && !dest) findPlaces() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Suggestions pendant la frappe (250 ms après la dernière lettre), sans avoir à valider
+  useEffect(() => {
+    if (dest && query === dest.name) return undefined
+    if (query.trim().length < 3) { setPlaces(null); return undefined }
+    let current = true
+    const id = setTimeout(() => lookup(query).then((r) => current && setPlaces(r)).catch(() => {}), 250)
+    return () => { current = false; clearTimeout(id) }
+  }, [query]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (from && fromQuery === from.name) return undefined
+    if (fromQuery.trim().length < 3) { setFromPlaces(null); return undefined }
+    let current = true
+    const id = setTimeout(() => lookup(fromQuery).then((r) => current && setFromPlaces(r)).catch(() => {}), 250)
+    return () => { current = false; clearTimeout(id) }
+  }, [fromQuery]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const savedPlace = dest && user?.places?.find((p) => Math.abs(p.lat - dest.lat) < 1e-5 && Math.abs(p.lon - dest.lon) < 1e-5)
   const savePlace = async () => {
@@ -251,7 +270,7 @@ export default function Itineraries() {
           <label htmlFor="to" className="route-form__label">{t('it.to')}</label>
           <div className="route-form__search">
             <input id="to" className="input input--dark" type="search" value={query} placeholder={t('around.placeholder')}
-              onChange={(e) => setQuery(e.target.value)} />
+              onChange={(e) => { setQuery(e.target.value); if (dest) { setDest(null); setIts(null) } }} />
             <button className="icon-btn" aria-label={t('it.search')}><Icon name="chevron" size={20} strokeWidth={2.5} /></button>
           </div>
         </form>

@@ -1,5 +1,4 @@
-"""Calcul d'itinéraire : transports en commun (OpenTripPlanner si OTP_URL est configurée, sinon calculateur intégré
-sur le GTFS IDFM, app/router), plus le vélo (Vélib' en temps réel, ou vélo personnel) et la marche."""
+"""Calcul d'itinéraire : transports en commun (OpenTripPlanner si OTP_URL est configurée, sinon calculateur intégré sur le GTFS IDFM, app/router), plus le vélo (Vélib' en temps réel, ou vélo personnel) et la marche."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -169,8 +168,7 @@ def plan(from_: tuple[float, float], to: tuple[float, float], accessible: bool, 
 
 def transit(from_, to, accessible, when, client=None, names=("Départ", "Arrivée"), rail=True, bus=True, slow=False,
             avoid: set[str] | None = None) -> list[dict]:
-    """Transports en commun : OpenTripPlanner s'il est configuré, sinon le calculateur intégré sur le GTFS IDFM.
-    Avec le bus et le ferré, on ajoute si possible un trajet tout en surface (bus, sans métro ni RER souterrain)."""
+    """Transports en commun : OpenTripPlanner s'il est configuré, sinon le calculateur intégré sur le GTFS IDFM."""
     if not settings.otp_url:
         try:
             its = engine.plan(from_, to, when, accessible, origin_name=names[0], dest_name=names[1], bus=bus, rail=rail, slow=slow,

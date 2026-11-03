@@ -1,5 +1,4 @@
 // Carte des gares : couleur = climatisation des lignes, taille = baisse de fréquentation les jours de chaleur.
-// La même information existe au clavier (liste de choix des gares) et en tableau (« Où agir en priorité »).
 import { useEffect, useRef, useState } from 'react'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { loadMaplibre } from '../../features/maplibre.js'

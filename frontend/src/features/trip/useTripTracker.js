@@ -1,5 +1,4 @@
 // Suivi du trajet : GPS quand il y en a, horaires enregistrés sinon, recalage au retour du signal.
-// Mouvement (avance, à l'arrêt, recule) et arrivée détectée d'après les positions GPS : voir motion.js.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAnnouncer } from '../../context/AnnouncerContext.jsx'
 import { usePrefs } from '../../context/PrefsContext.jsx'

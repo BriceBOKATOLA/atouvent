@@ -1,12 +1,8 @@
 // Climat : une seule lecture des aléas pour toute l'application (accueil, itinéraires, suivi).
-// Épisodes heure par heure (36 h, Open-Meteo), sinon aléas du jour (pollution, vigilance officielle Météo-France).
 
 const hour = (iso) => Number(iso.slice(11, 13))
 
-/**
- * [{ hazard, when, felt, official }] : ce qui arrive, quand, ressenti, et couleur officielle Météo-France si elle existe.
- * at (ISO, facultatif) : départ d'un trajet à venir ; les heures sont alors dites par rapport à ce jour-là.
- */
+/** [{ hazard, when, felt, official }] : ce qui arrive, quand, ressenti, et couleur officielle Météo-France si elle existe. */
 export function climateItems(weather, t, max = 3, at = null) {
   if (!weather) return []
   const now = at ? new Date(at).getTime() : Date.now()

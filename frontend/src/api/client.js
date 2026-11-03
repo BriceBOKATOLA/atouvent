@@ -1,10 +1,11 @@
-// Client HTTP de l'API AtouVent : jeton, erreurs et appels regroupés par domaine
+// Client HTTP de l'API AtouVent : session, erreurs et appels regroupés par domaine.
 import { storage } from '../utils/storage.js'
 
 // Web : même origine (/api/v1). Application Android : adresse complète du serveur (VITE_API_URL, voir .env.android)
 const BASE = import.meta.env.VITE_API_URL || '/api/v1'
 export const API_BASE = BASE
-export const TOKEN_KEY = 'atv.token'
+export const TOKEN_KEY = 'atv.token'  // application Android seulement
+export const NATIVE = Boolean(globalThis.Capacitor?.isNativePlatform?.())
 
 export class ApiError extends Error {
   constructor(status, code) {
@@ -17,14 +18,17 @@ export class ApiError extends Error {
 async function request(path, { method = 'GET', body, query } = {}) {
   const url = new URL(BASE + path, window.location.origin)
   Object.entries(query || {}).forEach(([k, v]) => v != null && url.searchParams.set(k, v))
-  const headers = { Accept: 'application/json' }
-  const token = storage.get(TOKEN_KEY)
-  if (token) headers.Authorization = `Bearer ${token}`
+  const headers = { Accept: 'application/json', 'X-Requested-With': 'AtouVent' }
+  if (NATIVE) {
+    headers['X-AtouVent-Client'] = 'native'
+    const token = storage.get(TOKEN_KEY)
+    if (token) headers.Authorization = `Bearer ${token}`
+  }
   if (body) headers['Content-Type'] = 'application/json'
 
   let res
   try {
-    res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined })
+    res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined, credentials: 'same-origin' })
   } catch {
     throw new ApiError(0, 'network')
   }
@@ -41,6 +45,7 @@ export const api = {
   auth: {
     register: (body) => request('/auth/register', { method: 'POST', body }),
     login: (body) => request('/auth/login', { method: 'POST', body }),
+    logout: () => request('/auth/logout', { method: 'POST' }),
     forgot: (email) => request('/auth/forgot-password', { method: 'POST', body: { email } }),
     reset: (token, password) => request('/auth/reset-password', { method: 'POST', body: { token, password } }),
   },

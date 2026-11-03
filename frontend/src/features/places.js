@@ -1,5 +1,4 @@
-// Types de lieux affichés sur la carte « Autour de moi » : une seule configuration pour la pastille de la carte,
-// le pictogramme de la liste, le libellé et les informations utiles (chips). Ajouter un type = ajouter une entrée ici.
+// Types de lieux affichés sur la carte « Autour de moi » : une seule configuration pour la pastille de la carte, le pictogramme de la liste, le libellé et les informations utiles (chips).
 
 // Onglets : arrêts et Vélib' ont leurs propres sources ; les autres viennent de /places/near?group=…
 export const MAP_TABS = [

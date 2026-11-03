@@ -1,11 +1,4 @@
-"""Accidents corporels de la route en Île-de-France selon la météo de l'heure (BAAC 2021-2024, ONISR).
-
-Une averse dure rarement toute la journée : on travaille donc heure par heure. Pour chaque type d'heure
-(pluie forte, neige, brouillard, orage, vent fort, chaleur), ratio = accidents observés / accidents attendus,
-l'attendu étant la moyenne des heures sèches et calmes du même mois, du même type de jour (semaine, samedi,
-dimanche) et de la même heure. Météo horaire : Paris-Montsouris (Météo-France), heures converties en heure de Paris.
-2020 est écarté (confinements).
-"""
+"""Accidents corporels de la route en Île-de-France selon la météo de l'heure (BAAC 2021-2024, ONISR)."""
 from __future__ import annotations
 
 import duckdb

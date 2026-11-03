@@ -1,9 +1,4 @@
-"""Qualité de l'air, UV et pollens (Open-Meteo, modèle européen CAMS de Copernicus, sans clé), avec cache commun.
-
-Indice européen de la qualité de l'air (EAQI) : 0-20 bon, 20-40 correct, 40-60 moyen, 60-80 dégradé, 80-100 mauvais,
-au-delà extrêmement mauvais. L'aléa « pollution » est déclenché à partir de 60 (dégradé), comme le conseil sanitaire
-de l'Agence européenne pour l'environnement aux personnes sensibles. Prévision de modèle, pas une mesure de station.
-"""
+"""Qualité de l'air, UV et pollens (Open-Meteo, modèle européen CAMS de Copernicus, sans clé), avec cache commun."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta

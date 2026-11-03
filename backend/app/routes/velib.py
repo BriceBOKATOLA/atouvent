@@ -27,8 +27,7 @@ def near(lat: float = Query(**LAT), lon: float = Query(**LON), radius_m: int = Q
 
 
 def trend(db, ids: list[str], minutes: int = 60) -> dict[str, dict]:
-    """Évolution des vélos et des places sur la dernière heure, et estimation dans 30 min (tendance prolongée).
-    Indicatif : une station peut se remplir ou se vider d'un coup (camion de régulation, sortie de bureau)."""
+    """Évolution des vélos et des places sur la dernière heure, et estimation dans 30 min (tendance prolongée)."""
     since = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     first = {}
     for d in db.velib_status.find({"meta.station_id": {"$in": ids}, "ts": {"$gte": since}}, {"meta": 1, "bikes": 1, "docks": 1, "ts": 1}).sort("ts", 1):

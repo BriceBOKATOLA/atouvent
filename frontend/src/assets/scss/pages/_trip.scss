@@ -159,3 +159,11 @@
 .motion{display:flex;align-items:center;gap:8px;margin:0;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--texte);font-weight:600}
 .motion--alert{background:var(--corail-pale);border-left:4px solid var(--braise-fonce)}
 .motion svg{flex:none}
+
+/* Carte d'itinéraire repliée : toute la surface est cliquable (le bouton du titre s'étend sur la carte) */
+.it-card{position:relative}
+.it-card:not(.card--selected) .it-card__head::after{content:"";position:absolute;inset:0;border-radius:14px}
+.it-card:not(.card--selected){cursor:pointer;transition:border-color .15s}
+.it-card:not(.card--selected):hover{border-color:var(--bleu)}
+.it-card:has(.it-card__head:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.it-card__head:focus-visible{outline:none;box-shadow:none}

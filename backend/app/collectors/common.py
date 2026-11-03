@@ -22,11 +22,7 @@ def state_hash(values: Iterable) -> str:
 
 def select_changes(rows: list[dict], latest: dict[str, dict], key_field: str, state_fields: list[str],
                    now: datetime, heartbeat: timedelta) -> list[dict]:
-    """Garde uniquement les lignes dont l'état a changé, plus un « battement » régulier.
-
-    Le battement prouve que l'objet était bien suivi même s'il n'a pas changé :
-    sans lui, on ne saurait pas distinguer « rien n'a changé » de « la collecte était en panne ».
-    """
+    """Garde uniquement les lignes dont l'état a changé, plus un « battement » régulier."""
     out = []
     for r in rows:
         h = state_hash(r.get(f) for f in state_fields)
@@ -46,10 +42,7 @@ RETRY_WAITS_S = (3, 10)  # délais avant la 2e et la 3e tentative
 
 
 def run_logged(db, source: str, fn: Callable[[], dict], waits: tuple[float, ...] = RETRY_WAITS_S) -> dict:
-    """Exécute un collecteur et note le résultat dans collection_runs, même en cas d'erreur.
-
-    Erreur réseau passagère (délai dépassé, connexion refusée) : jusqu'à 3 tentatives ; on n'enregistre une erreur
-    que si toutes échouent (« attempts » garde le nombre d'essais, utile pour repérer une source qui fatigue)."""
+    """Exécute un collecteur et note le résultat dans collection_runs, même en cas d'erreur."""
     import httpx
     run = {"source": source, "started_at": utcnow(), "ok": False}
     for attempt in range(len(waits) + 1):

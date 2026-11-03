@@ -30,3 +30,6 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px
 .pw__toggle{min-width:80px;min-height:50px;border:2px solid var(--bord-champ);border-radius:10px;background:var(--surface);font-size:.875rem;font-weight:600;cursor:pointer}
 .pw__toggle[aria-pressed="true"]{background:var(--nuit);color:var(--blanc);border-color:var(--nuit)}
 
+
+/* Pictogramme des listes de choix : taille fixe, même avec un texte long sur petit écran */
+.choice svg{flex:none}

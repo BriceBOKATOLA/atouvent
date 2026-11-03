@@ -1,10 +1,4 @@
-"""Température et particules sur les quais (mesures en continu RATP, 7 stations souterraines).
-
-Pour chaque station : température maximale moyenne sur le quai les jours de chaleur (Tmax ≥ 33 °C à Montsouris)
-et les jours ordinaires du même été, et part des jours où les particules PM10 dépassent la valeur guide
-journalière de l'OMS (45 µg/m³, 2021). Les noms de colonnes varient d'une station à l'autre (suffixe) :
-on les reconnaît par leur préfixe (« t » température, « 10 » PM10).
-"""
+"""Température et particules sur les quais (mesures en continu RATP, 7 stations souterraines)."""
 from __future__ import annotations
 
 import json

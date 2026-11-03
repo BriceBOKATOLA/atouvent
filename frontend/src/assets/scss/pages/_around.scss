@@ -107,3 +107,12 @@
 .climate-now__ok{display:flex;gap:8px;align-items:center;font-weight:600;color:var(--vert)}
 .climate-now__lines{list-style:none;margin:0;padding:10px 0 0;border-top:1px solid var(--bord);display:flex;flex-direction:column;gap:4px;font-size:.8125rem;color:var(--texte-2)}
 .climate-now__lines li{display:flex;gap:6px;align-items:center}
+
+/* Position en direct de l'appareil : point bleu cerclé de blanc, avec une pulsation (coupée si « réduire les animations ») */
+.map-wrap{position:relative}
+.map-me{width:18px;height:18px;border-radius:50%;background:var(--bleu);border:3px solid #FFFFFF;box-shadow:0 0 0 2px var(--bleu)}
+.map-me::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--bleu);animation:me-pulse 2s ease-out infinite}
+@keyframes me-pulse{from{transform:scale(.6);opacity:.9}to{transform:scale(1.6);opacity:0}}
+@media (prefers-reduced-motion: reduce){.map-me::after{animation:none;opacity:.5}}
+.map-locate{position:absolute;left:8px;bottom:8px;z-index:2;min-height:44px;padding:0 12px;border-radius:10px;border:2px solid var(--texte);
+  background:var(--surface);color:var(--texte);font-weight:700;font-size:.8125rem;cursor:pointer}

@@ -1,5 +1,4 @@
-// Comptes et rôles (super admin) : recherche par adresse, rôle, profil de déplacement (oui ou non, jamais le détail :
-// donnée de santé), création et dernière connexion, suppression avec confirmation. Chaque action est journalisée par l'API.
+// Comptes et rôles (super admin) : recherche par adresse, rôle, profil de déplacement (oui ou non, jamais le détail : donnée de santé), création et dernière connexion, suppression avec confirmation.
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../../api/client.js'
 import { useI18n } from '../../../i18n/index.jsx'

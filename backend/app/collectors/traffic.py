@@ -1,8 +1,4 @@
-"""Historique de l'info trafic : chaque perturbation ferrée vue est gardée (une fois par jour), avec ses étiquettes.
-
-Sert à mesurer si l'offre a tenu pendant les épisodes de chaleur (pannes, malaises, ralentissements),
-une donnée qu'IDFM ne publie pas en historique. Lancé toutes les 15 minutes par le planificateur.
-"""
+"""Historique de l'info trafic : chaque perturbation ferrée vue est gardée (une fois par jour), avec ses étiquettes."""
 from __future__ import annotations
 
 from pymongo import UpdateOne

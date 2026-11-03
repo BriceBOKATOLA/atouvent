@@ -1,10 +1,4 @@
-"""Ombre des arbres sur les trajets à pied (Paris, jeu « Les arbres » de la Ville de Paris, ≈ 220 000 arbres).
-
-Usage : python -m app.router.shade   (télécharge les arbres une fois dans data/raw/, écrit data/shade.json)
-Grille de cases d'environ 30 m : pour chaque case, la surface d'ombre estimée des arbres (houppier ≈ 22 fois le
-diamètre du tronc, plafonné à 14 m). Une étape à pied reçoit une note d'ombre de 0 (aucun arbre) à 1 (allée ombragée),
-moyenne des points tous les 20 m le long de la ligne droite : indicatif, le tracé réel des rues n'est pas connu.
-"""
+"""Ombre des arbres sur les trajets à pied (Paris, jeu « Les arbres » de la Ville de Paris, ≈ 220 000 arbres)."""
 from __future__ import annotations
 
 import csv

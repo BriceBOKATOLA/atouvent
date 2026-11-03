@@ -1,12 +1,5 @@
-"""Collecte Vélib' (GBFS). Aucun historique n'est publié : on le construit nous-mêmes.
-
-Règles :
-- relevé toutes les 5 minutes (le flux change chaque minute) ;
-- on n'écrit une station que si son état a changé, ou toutes les heures (battement) ;
-- chaque passage est journalisé : un trou de collecte ne doit jamais être lu comme « zéro vélo ».
-
-Lancer une fois à la main :  python -m app.collectors.velib
-"""
+"""Collecte Vélib' (GBFS).
+Lancer une fois à la main :  python -m app.collectors.velib"""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone

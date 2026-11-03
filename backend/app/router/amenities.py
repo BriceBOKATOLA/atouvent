@@ -1,18 +1,4 @@
-"""Équipements et conditions de chaque arrêt du calculateur : abri, banc, éclairage, annonces sonores et visuelles,
-accessibilité, bande podotactile, toilettes et fontaine à proximité, chaleur du quartier et des quais.
-
-Usage : python -m app.router.amenities   (après app.router.build ; télécharge les sources dans data/raw/ une fois)
-Sortie : data/stop_info.json, lu par le calculateur et joint à chaque montée et descente.
-
-Sources :
-- IDFM « Arrêts » (référentiel) : accessibilité fauteuil, annonces sonores, information visuelle ;
-- OpenStreetMap (contributeurs OSM, ODbL) : abri, banc, éclairage, afficheur, bande podotactile (arrêts de bus et tram) ;
-- IDFM « Accessibilité en gare » : niveau d'accessibilité des gares ferroviaires ;
-- IDFM « Fontaines aux arrêts » et RATP « Sanitaires du réseau » ;
-- analyse AtouVent (backend/data/chaleur.json) : vulnérabilité à la chaleur du quartier (Institut Paris Region)
-  et température relevée sur les quais (RATP).
-Valeurs : 1 oui, 0 non, 0.5 en partie ; clé absente = non renseigné.
-"""
+"""Équipements et conditions de chaque arrêt du calculateur : abri, banc, éclairage, annonces sonores et visuelles, accessibilité, bande podotactile, toilettes et fontaine à proximité, chaleur du quartier et des quais."""
 from __future__ import annotations
 
 import json

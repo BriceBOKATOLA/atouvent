@@ -1,8 +1,5 @@
 """Planificateur de collecte : à lancer dès maintenant et sans interruption.
-
-Chaque jour non collecté est perdu pour toujours (Vélib' et ascenseurs n'ont pas d'historique récent public).
-Lancer : python -m app.worker
-"""
+Lancer : python -m app.worker"""
 import logging
 
 from apscheduler.schedulers.blocking import BlockingScheduler

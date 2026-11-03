@@ -6,6 +6,9 @@ Application web installable (PWA, APK Android) et écrans pour les décideurs, r
 
 - Code : licence MIT (`licence.MIT`) · contributions : `contributing.md` · données et logiciels réutilisés : `SOURCES.md`
 - Accessibilité visée : RGAA 4.1 niveau AA (contrôles automatiques dans `frontend/scripts/a11y/`)
+- **Charte graphique : [Figma AtouVent](https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers)** : le logo, les couleurs et la typographie. Le reste (maquette des écrans, flyers) est dans le fichier, en cliquant sur le lien.
+- **En ligne : [atouvent.com](https://atouvent.com)** (site, API sur `/api`, application Android)
+- Images Docker publiées dans **GitHub Packages** : `ghcr.io/bricebokatola/atouvent-api` et `ghcr.io/bricebokatola/atouvent-web`
 
 ## Ce que fait l'application
 
@@ -105,11 +108,25 @@ cd ../analyse && python prepare.py     # analyse complète, dont la chaleur à v
 Super admin : mettre son adresse dans `SUPERADMIN_EMAILS` puis
 `python -m app.admin_cli create-superadmin adresse@exemple.fr` (lien pour choisir son mot de passe ; `--no-email` l'affiche).
 
+### Avec Docker (images de GitHub Packages)
+
+```bash
+cp backend/.env.example backend/.env   # remplir les secrets
+docker compose up -d                   # site http://localhost:8080 · API, collecteur, MongoDB
+docker compose up -d --build           # ou construire les images depuis ce dépôt
+```
+
+Chaque envoi sur `main` lance les tests (`.github/workflows/ci.yml`) puis, s'ils passent, publie les deux images dans
+GitHub Packages (`.github/workflows/packages.yml`) : étiquettes `latest`, empreinte du commit, et numéro de version pour une
+étiquette `v1.2.3`. Le site est servi par nginx (`frontend/nginx.conf`), qui relaie `/api` vers l'API sur la même origine.
+
 ## Tests et contrôles
 
 ```bash
 cd backend && .venv/Scripts/python -m pytest      # API, calculateur, services, sécurité
 cd frontend && npm test                           # logique de l'application, traductions complètes
+# Test de bout en bout sur l'API lancée, avec 4 usagers types (classique, fauteuil, malvoyante, décideuse)
+cd backend && .venv/Scripts/python scripts/scenario_usagers.py   # --keep : garde les comptes pour les contrôles d'écrans
 # Accessibilité (application et API lancées ; TOKEN=jeton pour les pages connectées)
 npm run a11y:contrast    # contrastes texte et contours, thèmes clair, sombre, contraste renforcé
 npm run a11y:audit       # noms accessibles, images, titres, langue, cibles tactiles, erreurs, débordement
@@ -138,8 +155,14 @@ Déclaration d'accessibilité : `frontend/public/declaration-accessibilite.html`
 - **Rôles vérifiés par le serveur** sur chaque route : compte connecté pour `/me…`, administrateur pour `/admin…` et
   `/collect/status`, super administrateur pour la gestion des comptes et la mise à jour des horaires. Les écrans protégés de
   l'application (`/compte`, `/admin`, `/donnees`) ne font que refléter ces règles : sans le bon rôle, l'API répond 401 ou 403.
-- **Sessions** : jetons signés (HS256 imposé), durée limitée, révoqués tous ensemble au changement de mot de passe ;
-  mots de passe hachés (scrypt) ; profil de déplacement (donnée de santé) chiffré en base et jamais exposé aux admins.
+- **Sessions** : jeton JWT signé (HS256 imposé), durée limitée (7 jours), révoqué partout au changement de mot de passe.
+  Site web : le jeton vit dans un **cookie `atv_session` HttpOnly** (illisible par JavaScript), `SameSite=Strict`, limité à
+  `/api`, `Secure` en HTTPS ; il n'apparaît jamais dans les réponses. Toute modification exige l'en-tête
+  `X-Requested-With: AtouVent` (protection contre la falsification de requête). Application Android : jeton gardé par
+  l'application et envoyé en `Authorization: Bearer`. Déconnexion : `POST /auth/logout` efface le cookie.
+- **Cookies** : un seul, celui de la session, strictement nécessaire (exempté de consentement, CNIL) ; aucun cookie de
+  suivi ni de mesure d'audience. Le détail de ce qui est gardé sur l'appareil est dans `frontend/public/confidentialite.html`.
+- Mots de passe hachés (scrypt) ; profil de déplacement (donnée de santé) chiffré en base et jamais exposé aux admins.
 - **Anti-abus** : limite par adresse IP sur toute l'API (300 requêtes/min), plus stricte pour le compte, l'administration
   et le flux en direct, et par route (connexion, inscription, e-mails, itinéraires…) ; 20 essais de connexion par heure et
   par compte, quelle que soit l'adresse ; requêtes de plus de 1 Mo refusées.
@@ -151,7 +174,25 @@ Déclaration d'accessibilité : `frontend/public/declaration-accessibilite.html`
 
 ## Conception
 
-Charte graphique, maquette des écrans et flyers : `design/README.md` (lien vers le fichier Figma et exports des planches).
+La charte graphique est sur **[Figma](https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers)** : le logo, les couleurs et la typographie. Le reste (maquette des 16 écrans, flyers, planches RGAA) se voit en ouvrant le lien ; `design/README.md` donne un lien direct vers chaque planche.
+À l'ouverture, le logo se construit élément par élément puis le nom lettre par lettre (`components/Splash.jsx`,
+`assets/scss/components/_splash.scss`), à chaque lancement de l'application ; passé d'un toucher ou d'une touche,
+sans mouvement si « réduire les animations » est demandé.
+
+## Base de données
+
+MongoDB 8, base **`atouvent`** (26 collections, environ 80 Mo de données au 3 novembre 2026).
+
+| Où | Emplacement |
+|---|---|
+| Sur cet ordinateur (service Windows « MongoDB ») | `mongodb://localhost:27017`, base `atouvent` ; fichiers dans `C:\Program Files\MongoDB\Server\8.0\data`, journal dans `C:\Program Files\MongoDB\Server\8.0\log\mongod.log` |
+| Avec Docker | volume `mongo-data` du service `mongo` (`docker-compose.yml`) |
+| En ligne | même chose sur le serveur d'atouvent.com, adresse donnée par `MONGO_URI` dans `backend/.env` |
+
+Collections principales : `users` (comptes, profil chiffré), `velib_status` et `elevator_status` (historiques en séries
+temporelles), `traffic_history`, `reports`, `collection_runs` (journal de collecte), `admin_log`, et les caches `*_cache`.
+Pour la consulter : MongoDB Compass sur `mongodb://localhost:27017`. Les fichiers lourds du calculateur (horaires, équipements,
+ombre) ne sont pas dans la base mais dans `backend/data/`.
 
 ## Données
 
@@ -163,13 +204,17 @@ Toutes les sources, leurs licences et leur fréquence de mise à jour : **`SOURC
   validations perdues = validations d'un jour ordinaire × baisse mesurée à 33 °C et plus × jours ouvrés à 33 °C et plus.
   Gares écartées si leur fréquentation chute pour une autre raison (travaux, fin des cours universitaires). Un ordre de grandeur.
 - **Air des quais** : évaluation Airparif publiée par IDFM, par quai et par ligne ; campagnes ponctuelles ou mesures permanentes.
+- **Position en direct** : le GPS est suivi en continu ; la carte montre l'appareil (point bleu et cercle de précision) qui se
+  déplace à chaque position, et les données autour (arrêts, Vélib', météo) sont rechargées après 100 m de déplacement.
+  Pendant un trajet, chaque position est projetée sur le tracé : « vous avancez », « à l'arrêt », « vous revenez en arrière »,
+  et l'arrivée est détectée sans attendre l'usager (`features/trip/motion.js`).
 
 ## Routes de l'API (`/api/v1`)
 
 | Méthode | Route | Rôle |
 |---|---|---|
 | GET | `/health`, `/collect/status` | état du service et de la collecte |
-| POST | `/auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` | compte (limité par IP) |
+| POST | `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password` | compte (limité par IP ; session en cookie HttpOnly sur le web) |
 | GET, PUT, DELETE | `/me`, `/me/preferences`, `/me/export`, `/me/places…`, `/me/password` | profil, préférences, export et suppression (RGPD) |
 | GET | `/geo/search?q=` | gares et stations du réseau d'abord, puis adresses et lieux (IGN) |
 | POST | `/trips/plan` | itinéraires (`modes`, `accessible`, `walk`, `depart_at` pour un trajet à venir) |

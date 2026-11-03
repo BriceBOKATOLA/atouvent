@@ -1,6 +1,4 @@
-// Synthèse vocale : on choisit la voix la plus naturelle disponible sur l'appareil pour la langue
-// (voix « neuronales » ou « naturelles » de Microsoft, Google, Apple), jamais la voix robotique par défaut si mieux existe.
-// L'usager peut aussi choisir sa voix sur l'écran Accessibilité (clé atv.voice).
+// Synthèse vocale : on choisit la voix la plus naturelle disponible sur l'appareil pour la langue (voix « neuronales » ou « naturelles » de Microsoft, Google, Apple), jamais la voix robotique par défaut si mieux existe.
 import { storage } from './storage.js'
 
 const KEY = 'atv.voice'

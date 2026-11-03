@@ -1,9 +1,4 @@
-"""Reconstruction de séries régulières à partir de données stockées « au changement ».
-
-Comme on n'écrit une station que lorsqu'elle change, la valeur à un instant donné est
-le dernier état connu avant cet instant (report de la dernière valeur). Mais si la
-collecte était en panne, on ne sait pas : la valeur est alors None, jamais 0.
-"""
+"""Reconstruction de séries régulières à partir de données stockées « au changement »."""
 from __future__ import annotations
 
 from bisect import bisect_left

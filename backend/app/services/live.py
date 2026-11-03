@@ -1,9 +1,4 @@
-"""Suivi en direct d'un trajet, façon Waze : perturbations sur les lignes du trajet, passages en temps réel
-à la prochaine montée (retard ou avance), ascenseurs en panne, et signalements des autres voyageurs.
-
-Les signalements (retard, rame bondée, chaleur, ascenseur, arrêt non desservi, travaux, obstacle) expirent seuls
-(index TTL Mongo) ; les autres voyageurs peuvent confirmer (« toujours là ») ou infirmer (« plus là »).
-"""
+"""Suivi en direct d'un trajet, façon Waze : perturbations sur les lignes du trajet, passages en temps réel à la prochaine montée (retard ou avance), ascenseurs en panne, et signalements des autres voyageurs."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -116,8 +111,7 @@ def live(db, trip: dict, next_leg: int, guard) -> dict:
 
 
 def trip_context(db, trips: list[dict]) -> None:
-    """Pour chaque trajet proposé : perturbations PRIM en cours sur ses lignes et signalements récents sur son parcours.
-    Une seule lecture de l'info trafic (cache 5 min) et des signalements pour tous les trajets."""
+    """Pour chaque trajet proposé : perturbations PRIM en cours sur ses lignes et signalements récents sur son parcours."""
     try:
         items = traffic.current(db).get("items", [])
     except (traffic.TrafficUnavailable, httpx.HTTPError):

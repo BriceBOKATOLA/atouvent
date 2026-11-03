@@ -1,7 +1,4 @@
-"""Distances en mètres (approximation équirectangulaire, précise à l'échelle de l'Île-de-France).
-
-Une seule implémentation pour tout le serveur : points isolés (distance_m) ou tableaux numpy (distances_m).
-"""
+"""Distances en mètres (approximation équirectangulaire, précise à l'échelle de l'Île-de-France)."""
 from __future__ import annotations
 
 import math

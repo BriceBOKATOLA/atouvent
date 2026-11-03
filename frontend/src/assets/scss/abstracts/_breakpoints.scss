@@ -1,5 +1,4 @@
 // Points de rupture : mobile d'abord, la mise en page s'élargit au-delà.
-// Usage : @use "../abstracts/breakpoints" as bp;  puis  @include bp.up(lg) { … }  ou  @include bp.down(md) { … }
 @use "sass:map";
 
 $breakpoints: (

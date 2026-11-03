@@ -1,14 +1,6 @@
 """Import de l'historique public des ascenseurs (Dispotrains, 2013 à 2018, data.gouv.fr).
-
-C'est la seule source qui couvre plusieurs étés : c'est elle qui permet de mesurer
-le lien « pannes d'ascenseurs et chaleur », en la croisant avec la météo quotidienne
-des mêmes dates. La collecte en direct (app.collectors.ascenseurs) prend le relais
-pour les années récentes.
-
-Usage :
-    python -m app.importers.dispotrains fichier.csv --inspect   # voir les colonnes
-    python -m app.importers.dispotrains fichier.csv             # importer
-"""
+python -m app.importers.dispotrains fichier.csv --inspect   # voir les colonnes
+python -m app.importers.dispotrains fichier.csv             # importer"""
 from __future__ import annotations
 
 import csv

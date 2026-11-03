@@ -90,6 +90,8 @@ class Settings:
     smtp_from: str = os.environ.get("SMTP_FROM", "") or os.environ.get("SMTP_USER", "")
     # Adresse publique de l'application, utilisée dans les liens envoyés par e-mail
     app_url: str = os.environ.get("APP_URL", "http://localhost:5174").rstrip("/")
+    # Cookie de session « Secure » (HTTPS seulement) dès que le site est servi en HTTPS
+    secure_cookies: bool = os.environ.get("SECURE_COOKIES", "1" if os.environ.get("APP_URL", "").startswith("https") else "0") == "1"
     reset_token_minutes: int = _int("RESET_TOKEN_MINUTES", 30)
 
     # Comptes super admin : rôle attribué automatiquement à ces adresses

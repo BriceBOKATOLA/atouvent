@@ -23,4 +23,5 @@ def test_places_limits(client):
     for i in range(10):
         assert client.post("/api/v1/me/places", json={"name": f"P{i}", "lat": 48.8 + i / 100, "lon": 2.3}, headers=h).status_code == 200
     assert client.post("/api/v1/me/places", json={"name": "P10", "lat": 48.95, "lon": 2.4}, headers=h).status_code == 409
+    client.cookies.clear()  # sans session du tout (ni en-tête ni cookie)
     assert client.post("/api/v1/me/places", json={"name": "x", "lat": 48.8, "lon": 2.3}).status_code == 401

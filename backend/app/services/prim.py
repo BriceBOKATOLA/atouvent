@@ -1,10 +1,4 @@
-"""Prochains passages (PRIM, format SIRI Lite) avec cache et garde-fou de quota.
-
-Les jetons PRIM récents sont limités (de l'ordre de 5 requêtes/s et 1 000/jour, à vérifier
-dans « My API Usage »). Le téléphone n'appelle donc jamais PRIM directement : le serveur
-met chaque arrêt en cache 60 s et partage la réponse entre tous les usagers.
-Quand le quota est atteint, on renvoie la dernière réponse connue, marquée « ancienne ».
-"""
+"""Prochains passages (PRIM, format SIRI Lite) avec cache et garde-fou de quota."""
 from __future__ import annotations
 
 import threading

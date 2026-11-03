@@ -1,7 +1,4 @@
-"""Hauteur des principales rivières d'Île-de-France (Hub'Eau hydrométrie, temps réel, sans clé), avec cache commun.
-
-La vigilance crues officielle vient de Vigicrues (services/flood.py) ; ici, les hauteurs mesurées et leur tendance.
-"""
+"""Hauteur des principales rivières d'Île-de-France (Hub'Eau hydrométrie, temps réel, sans clé), avec cache commun."""
 from __future__ import annotations
 
 from datetime import timedelta

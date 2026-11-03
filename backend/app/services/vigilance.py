@@ -1,9 +1,4 @@
-"""Vigilance météorologique officielle de Météo-France (API DPVigilance, portail-api.meteofrance.fr).
-
-Il faut une clé gratuite (METEOFRANCE_API_KEY dans backend/.env). Sans clé, AtouVent garde ses aléas estimés à partir
-des prévisions Open-Meteo et le dit (available = False). Avec la clé, les couleurs officielles des 8 départements
-franciliens priment : jaune, orange ou rouge, par phénomène, aujourd'hui (J) et demain (J1).
-"""
+"""Vigilance météorologique officielle de Météo-France (API DPVigilance, portail-api.meteofrance.fr)."""
 from __future__ import annotations
 
 from datetime import timedelta

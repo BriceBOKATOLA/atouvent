@@ -18,12 +18,15 @@ import { useI18n } from '../i18n/index.jsx'
 
 const RAIL_MODES = new Set(['Metro', 'RapidTransit', 'LocalTrain', 'regionalRail', 'Tramway', 'RailShuttle'])
 
+const RELOAD_M = 100  // déplacement au-delà duquel arrêts, Vélib' et météo sont rechargés
+
 export default function Around() {
   const { user } = useAuth()
   const { t, time } = useI18n()
   const { prefs } = usePrefs()
   const navigate = useNavigate()
-  const geo = useGeolocation({ enabled: prefs.use_location })
+  // Position suivie en direct (watch) : le repère de la carte bouge avec l'appareil
+  const geo = useGeolocation({ watch: true, enabled: prefs.use_location })
   const [query, setQuery] = useState('')
   const [weather, setWeather] = useState(null)
   const [flood, setFlood] = useState(null)
@@ -36,7 +39,13 @@ export default function Around() {
   const [velibs, setVelibs] = useState(null)
   const [mapTab, setMapTab] = useState('stops')
   const lastPos = useRef('')
-  const pos = usablePosition(geo.coords)
+  // Pour charger les données : on ne bouge cette position qu'après 100 m de déplacement (le repère de la carte, lui, suit chaque point GPS)
+  const live = usablePosition(geo.coords)
+  const [pos, setPos] = useState(() => ({ lat: live.lat, lon: live.lon }))
+  useEffect(() => {
+    if (distance(pos, live) > RELOAD_M) setPos({ lat: live.lat, lon: live.lon })
+  }, [live.lat, live.lon]) // eslint-disable-line react-hooks/exhaustive-deps
+  const me = geo.status === 'ok' && inIdf(geo.coords) ? geo.coords : null
   const outside = Boolean(geo.coords) && !inIdf(geo.coords)
 
   useEffect(() => { loadTrip().then((b) => setHasTrip(Boolean(b))) }, [])
@@ -144,7 +153,7 @@ export default function Around() {
             onClick={() => openMap('velib')} />
         </section>
 
-        <AroundMap pos={pos} stops={stops} velibs={velibs} tab={mapTab} setTab={setMapTab} />
+        <AroundMap pos={pos} stops={stops} velibs={velibs} tab={mapTab} setTab={setMapTab} me={me} />
 
         {hasTrip && (
           <Link className="btn btn--dark btn--block btn--lg" to="/trajet"><Icon name="pin" /> {t('around.resume')}</Link>

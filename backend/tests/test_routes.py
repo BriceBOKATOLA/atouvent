@@ -71,6 +71,7 @@ def test_elevator_summary(client, db):
 def test_decider_analysis_is_admin_only(client):
     r = _register(client)
     h = {"Authorization": f"Bearer {r.json()['token']}"}
+    client.cookies.clear()  # sans session du tout (ni en-tête ni cookie)
     assert client.get(f"{API}/admin/analysis").status_code == 401
     assert client.get(f"{API}/admin/analysis", headers=h).status_code == 403
 

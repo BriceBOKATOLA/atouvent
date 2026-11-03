@@ -1,8 +1,4 @@
-// Audit automatique des écrans (une partie du RGAA, le reste se vérifie à la main) :
-// erreurs JavaScript, requêtes en échec, débordement horizontal, nom accessible des boutons et liens (RGAA 6.1, 11.1),
-// images sans alternative (RGAA 1.1), zones tactiles < 24 px (WCAG 2.5.8) et < 44 px (conseil), titre h1 (RGAA 9.1),
-// langue de la page (RGAA 8.3), identifiants en double, zone principale <main>, graphiques et cartes sans titre (RGAA 1.1).
-// Usage : node scripts/a11y/audit.mjs   (PAGES, TOKEN, W=largeur d'écran)
+// Audit automatique des écrans (une partie du RGAA, le reste se vérifie à la main) : erreurs JavaScript, requêtes en échec, débordement horizontal, nom accessible des boutons et liens (RGAA 6.1, 11.1), images sans alternative (RGAA 1.1), zones tactiles < 24 px (WCAG 2.5.8) et < 44 px (conseil), titre h1 (RGAA 9.1), langue de la page (RGAA 8.3), identifiants en double, zone principale <main>, graphiques et cartes sans titre (RGAA 1.1).
 import { launch, pages } from './cdp.mjs'
 
 const CHECK = `(() => {

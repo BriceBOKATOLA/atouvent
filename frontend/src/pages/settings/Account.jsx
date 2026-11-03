@@ -154,7 +154,7 @@ export default function Account() {
         {isAdmin(user) && <Link className="btn btn--ghost btn--block" to="/donnees"><Icon name="chart" /> {t('data.title')}</Link>}
         <button type="button" className="btn btn--dark btn--block" onClick={() => { logout(); navigate('/') }}>{t('account.logout')}</button>
         <p className="footnote">
-          <a href="/declaration-accessibilite.html">{t('a11y.level')}</a> · <a href="/confidentialite.html">{t('privacy.link')}</a>
+          <a href="/declaration-accessibilite.html">{t('a11y.level')}</a> · <a href="/confidentialite.html">{t('privacy.link')}</a> · <a href="/confidentialite.html#cookies">{t('privacy.cookies')}</a>
         </p>
       </main>
     </>

@@ -1,12 +1,4 @@
 // Point d'entrée des styles d'AtouVent (importé par src/main.jsx).
-// L'ordre compte : polices et jetons (variables de thème), base, structure, composants, puis écrans.
-//
-// Organisation :
-//   abstracts/  points de rupture et mixins (ne produisent aucune règle)
-//   base/       polices, jetons de la charte (clair, sombre, contraste renforcé), remise à zéro et accessibilité
-//   layout/     en-têtes, contenu, navigation
-//   components/ un fichier par famille de composants réutilisables
-//   pages/      règles propres à un écran
 @use "base/fonts";
 @use "base/tokens";
 @use "base/base";
@@ -21,6 +13,7 @@
 @use "components/links";
 @use "components/charts";
 @use "components/high-contrast";
+@use "components/splash";
 @use "pages/auth";
 @use "pages/around";
 @use "pages/trip";

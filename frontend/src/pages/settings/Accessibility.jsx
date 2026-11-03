@@ -1,5 +1,4 @@
 // 06 · Trajet accessible : réglages d'affichage en un geste, profil de déplacement, trajet vérifié gare par gare.
-// Accessible aussi sans compte (les réglages restent sur l'appareil).
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Icon from '../../components/Icon.jsx'

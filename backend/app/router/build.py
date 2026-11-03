@@ -1,9 +1,4 @@
-"""Préparation du calculateur d'itinéraires à partir du GTFS officiel IDFM (métro, RER, Transilien, tram, bus).
-
-Usage : python -m app.router.build chemin/vers/IDFM-gtfs.zip [--sans-bus]   (ou un dossier déjà décompressé)
-Sortie : data/router.npz (tableaux) et data/router.json (noms, lignes, calendrier).
-Avec le bus (≈ 13 millions d'horaires), compter ~300 Mo de mémoire pour l'API ; --sans-bus pour un petit serveur.
-"""
+"""Préparation du calculateur d'itinéraires à partir du GTFS officiel IDFM (métro, RER, Transilien, tram, bus)."""
 from __future__ import annotations
 
 import json
@@ -62,8 +57,7 @@ def build(src: Path, bus: bool = True) -> dict:
         order by x.dep, t.ix""").fetchnumpy()
     conns = np.stack([c[k].astype(np.int32) for k in ("a", "b", "dep", "nxt_arr", "trip")], axis=1)
 
-    # Marche entre arrêts voisins (≤ 250 m, grille de cases d'environ 300 m), puis correspondances déclarées
-    # (transfers.txt) qui l'emportent ; l'API les lit dans cet ordre
+    # Marche entre arrêts voisins (≤ 250 m, grille de cases d'environ 300 m), puis correspondances déclarées (transfers.txt) qui l'emportent ; l'API les lit dans cet ordre
     con.sql("create table sc as select ix, lat, lon, floor(lat / 0.0027)::int cy, floor(lon / 0.004)::int cx from stops")
     near = con.sql(f"""select a.ix, b.ix, (sqrt(pow(radians(b.lon - a.lon) * cos(radians(a.lat)), 2) + pow(radians(b.lat - a.lat), 2))
             * 6371000 / {WALK_MS} + 60)::int t

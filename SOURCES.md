@@ -114,3 +114,12 @@ Polices auto-hébergées : IBM Plex Sans et IBM Plex Mono (IBM), Archivo (Omnibu
 | NumPy | 2.4.6 | BSD-3-Clause |
 | DuckDB | 2.0.0 | MIT |
 | MongoDB Community Server (base de données) | 8 | SSPL (service local, non redistribué) |
+
+### Images Docker (GitHub Packages)
+
+| Image de base | Version | Licence |
+|---|---|---|
+| python (API et collecteur) | 3.12-slim | Python Software Foundation License |
+| node (construction du site) | 22-alpine | MIT |
+| nginx (service du site) | 1.27-alpine | BSD-2-Clause |
+| mongo (base, `docker-compose.yml`) | 8 | SSPL (non redistribuée, tirée depuis Docker Hub) |

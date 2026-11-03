@@ -1,10 +1,4 @@
-"""Mise à jour automatique des horaires IDFM (GTFS) et des données qui en dépendent.
-
-Chaque nuit (worker) : on regarde la date de publication du GTFS IDFM ; s'il est plus récent que celui du calculateur
-(ou si nos horaires expirent dans moins de 10 jours), on le télécharge, on reconstruit le réseau dans un dossier
-temporaire puis on remplace les fichiers d'un coup : l'API recharge le nouveau réseau au calcul suivant, sans coupure.
-Usage manuel : python -m app.router.refresh [--force]
-"""
+"""Mise à jour automatique des horaires IDFM (GTFS) et des données qui en dépendent."""
 from __future__ import annotations
 
 import json

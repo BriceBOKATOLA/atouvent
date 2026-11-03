@@ -1,10 +1,4 @@
 // Mouvement de l'usager le long de son trajet, d'après le GPS : avance, à l'arrêt, recule, et arrivée détectée.
-// Fonctions pures (testées dans motion.test.js) : la page de suivi leur passe l'historique des positions reçues.
-//
-// Principe : chaque position est projetée sur le tracé réel du trajet (géométrie des étapes, sinon les arrêts) ;
-// « along » = mètres déjà parcourus le long du tracé, « offset » = écart au tracé. Sur une fenêtre de quelques dizaines de
-// secondes, la variation de « along » dit si l'on avance ou si l'on recule ; un déplacement plus petit que la précision du
-// GPS est du bruit : on est à l'arrêt. On ne conclut jamais sur une seule position.
 
 const R = 6_371_000
 const rad = (d) => (d * Math.PI) / 180
@@ -60,11 +54,7 @@ export function project(line, p) {
   return best
 }
 
-/**
- * État du mouvement sur la fenêtre récente.
- * history : [{ t, lat, lon, accuracy, along }] (du plus ancien au plus récent).
- * Renvoie { state, metres, sinceMs } avec state : moving_forward | stopped | moving_backward | uncertain.
- */
+/** État du mouvement sur la fenêtre récente. */
 export function motionState(history, now = Date.now()) {
   const recent = history.filter((h) => now - h.t <= WINDOW_MS)
   if (recent.length < 2) return { state: 'uncertain', metres: 0 }
@@ -87,10 +77,7 @@ export function motionState(history, now = Date.now()) {
   return { state: 'uncertain', metres: Math.round(moved) }  // se déplace, mais en travers du tracé
 }
 
-/**
- * Arrivée détectée sans attendre que l'usager appuie sur « Je suis arrivé » :
- * deux positions de suite à moins de 50 m de la destination, ou à moins de 120 m et à l'arrêt.
- */
+/** Arrivée détectée sans attendre que l'usager appuie sur « Je suis arrivé » : deux positions de suite à moins de 50 m de la destination, ou à moins de 120 m et à l'arrêt. */
 export function arrivalDetected(history, dest, motion) {
   const last2 = history.slice(-2)
   if (last2.length < 2) return false

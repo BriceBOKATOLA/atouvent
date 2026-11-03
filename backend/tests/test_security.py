@@ -214,3 +214,24 @@ def test_collect_report_marks_recovered_source(db):
         {"source": "velib_status", "started_at": now - timedelta(minutes=1), "ok": True}])
     r = collect_report(db, 7, with_errors=True)["velib_status"]
     assert r["state"] == "ok" and r["recovered"] and r["success_rate"] == 50.0 and r["last_error"].startswith("ConnectTimeout")
+
+
+def test_web_session_uses_httponly_cookie_and_csrf_header(db):
+    """Site web : jeton seulement dans un cookie HttpOnly/SameSite=Strict, jamais lisible ni dans la réponse ; toute modification exige l'en-tête X-Requested-With ; la déconnexion efface le cookie."""
+    from fastapi.testclient import TestClient
+    from app import deps
+    from app.main import create_app
+    deps._state.clear()
+    deps._state["db"] = db
+    web = TestClient(create_app())  # navigateur : pas d'en-tête « native »
+    r = web.post(f"{API}/auth/register", json={"email": "web@exemple.fr", "password": PW})
+    cookie = r.headers["set-cookie"].lower()
+    assert r.status_code == 200 and "token" not in r.json()
+    assert "atv_session=" in cookie and "httponly" in cookie and "samesite=strict" in cookie and "path=/api" in cookie
+    assert web.get(f"{API}/me").json()["email"] == "web@exemple.fr"
+    body = {"alerts": ["chaleur"]}
+    assert web.put(f"{API}/me/preferences", json=body).status_code == 403  # sans l'en-tête : refusé (CSRF)
+    assert web.put(f"{API}/me/preferences", json=body, headers={"X-Requested-With": "AtouVent"}).status_code == 200
+    assert web.post(f"{API}/auth/logout", headers={"X-Requested-With": "AtouVent"}).status_code == 200
+    assert web.get(f"{API}/me").status_code == 401
+    deps._state.clear()

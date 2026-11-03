@@ -1,4 +1,8 @@
+# API et collecteur AtouVent. Publiée dans GitHub Packages : ghcr.io/bricebokatola/atouvent-api
 FROM python:3.12-slim
+LABEL org.opencontainers.image.source="https://github.com/BriceBOKATOLA/atouvent" \
+      org.opencontainers.image.description="AtouVent : API et collecteur de données (mobilités et climat, Île-de-France)" \
+      org.opencontainers.image.licenses="MIT"
 WORKDIR /srv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

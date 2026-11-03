@@ -1,20 +1,5 @@
 """Chaleur à venir : années types +2,7 °C et +4 °C (TRACC) comparées à l'année observée, et effet attendu gare par gare.
-
-Sources :
-- « Données climatiques prospectives - France +2,7 °C / +4 °C - Vague de chaleur » (ADEME, Météo-France, CSTB, DHUP ;
-  Licence Ouverte 2.0) : une année type heure par heure, avec une vague de chaleur, pour 8 stations de référence.
-  L'Île-de-France est représentée par Trappes (Yvelines, zone climatique H1a).
-- Données climatologiques quotidiennes Météo-France (Licence Ouverte) : Trappes et Paris-Montsouris, juillet 2025 à juin 2026,
-  pour comparer à climat d'aujourd'hui, au même endroit.
-
-Effet par gare (ordre de grandeur, à comportement des voyageurs inchangé) :
-  validations perdues par an ≈ validations d'un jour ordinaire × baisse mesurée les jours ≥ 33 °C × jours ouvrés ≥ 33 °C.
-Les jours ouvrés d'une année type sont estimés au prorata (251 jours ouvrés sur 365 dans la période observée).
-Gares écartées : celles dont la fréquentation des jours NON chauds chute de plus de 25 % entre le début et la fin de la période
-suivie (travaux, fermeture d'un accès…) : leur « baisse par chaleur » mélange deux causes et serait trompeuse.
-
-Lancer : python analyse/projections.py (complète backend/data/chaleur.json sans refaire toute l'analyse).
-"""
+Lancer : python analyse/projections.py (complète backend/data/chaleur.json sans refaire toute l'analyse)."""
 from __future__ import annotations
 
 import json
@@ -75,8 +60,7 @@ def structural_break(days: list[str], values: list[float | None], hot: set[str])
 
 def station_effects(stations: list[dict], hot_workdays: dict[str, float], series: dict | None = None,
                     hot_days: set[str] = frozenset()) -> tuple[list[dict], list[str]]:
-    """Validations perdues par an les jours ≥ 33 °C, aujourd'hui et dans chaque scénario (gares à mesure fiable).
-    Renvoie aussi les gares écartées pour rupture de fréquentation."""
+    """Validations perdues par an les jours ≥ 33 °C, aujourd'hui et dans chaque scénario (gares à mesure fiable)."""
     out, broken = [], []
     for s in stations:
         drop = (s.get("change") or {}).get("33")

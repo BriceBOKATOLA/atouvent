@@ -1,5 +1,4 @@
-// Préférences d'affichage et d'annonces : appliquées tout de suite, gardées sur l'appareil,
-// et envoyées au compte si l'usager est connecté.
+// Préférences d'affichage et d'annonces : appliquées tout de suite, gardées sur l'appareil, et envoyées au compte si l'usager est connecté.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { storage } from '../utils/storage.js'
 import { useAuth } from './AuthContext.jsx'
@@ -15,8 +14,7 @@ export function PrefsProvider({ children }) {
   const { user, ready, update } = useAuth()
   const [prefs, setPrefs] = useState(() => ({ ...DEFAULTS, ...storage.getJSON(KEY, {}) }))
 
-  // Le compte fait foi quand il est chargé. Sans compte : réglages classiques (pas de profil de déplacement),
-  // l'usager peut seulement les changer pour la session en cours sur l'écran Accessibilité.
+  // Le compte fait foi quand il est chargé.
   useEffect(() => {
     if (!ready) return
     if (!user) {
