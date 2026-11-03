@@ -4,3 +4,4 @@
 *.woff2 binary
 *.jar binary
 *.bat text eol=crlf
+*.sh text eol=lf
