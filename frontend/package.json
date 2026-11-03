@@ -10,6 +10,8 @@
     "test": "vitest run",
     "build:android": "vite build --mode android && cap sync android",
     "android:open": "cap open android",
+    "android:apk": "node scripts/android.mjs",
+    "android:release": "node scripts/android.mjs release",
     "a11y:contrast": "node scripts/a11y/contrast.mjs",
     "a11y:audit": "node scripts/a11y/audit.mjs",
     "a11y:keyboard": "node scripts/a11y/keyboard.mjs"

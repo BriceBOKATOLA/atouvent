@@ -38,7 +38,7 @@ function TripTracking({ bundle, onEnd }) {
   const navigate = useNavigate()
   const { prefs, set } = usePrefs()
   const { announce } = useAnnouncer()
-  const { progress, gps, online, source, offRoute, delayMs, motion, arrivedAt } = useTripTracker(bundle)
+  const { progress, gps, online, source, offRoute, delayMs, motion, arrivedAt, waiting, start } = useTripTracker(bundle)
   const [line, setLine] = useState(() => () => ({ ac: 'unknown' }))
   useEffect(() => { loadNetwork().then((g) => setLine(() => lineIndex(g))) }, [])
   const { trip } = bundle
@@ -96,7 +96,17 @@ function TripTracking({ bundle, onEnd }) {
             <p><strong>{t('trip.arrived_auto', { place, time: time(arrivedAt) })}</strong> {t('trip.arrived_auto_detail')}</p>
           </section>
         )}
-        {!arrivedAt && gps.status === 'ok' && <MotionStatus motion={motion} />}
+        {/* Le trajet ne démarre qu'une fois l'usager en route (GPS), ou quand il le dit */}
+        {waiting && (
+          <section className="banner banner--info trip-wait" role="status">
+            <Icon name="walk" size={24} />
+            <div>
+              <p><strong>{t('trip.wait_title')}</strong> {t('trip.wait_detail')}</p>
+              <button type="button" className="btn btn--primary" onClick={() => start()}>{t('trip.start_now')}</button>
+            </div>
+          </section>
+        )}
+        {!waiting && !arrivedAt && gps.status === 'ok' && <MotionStatus motion={motion} />}
 
         {offRoute && (
           <section className="alert-card" role="alert">

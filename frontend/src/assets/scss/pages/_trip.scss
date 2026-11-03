@@ -168,3 +168,7 @@
 .it-card:not(.card--selected):hover{border-color:var(--bleu)}
 .it-card:has(.it-card__head:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
 .it-card__head:focus-visible{outline:none;box-shadow:none}
+// En attente du départ : texte puis bouton « Je pars maintenant » en dessous, pleine largeur sur mobile
+.trip-wait p{margin:0 0 10px}
+.trip-wait .btn{width:100%}
+@media (min-width:600px){.trip-wait .btn{width:auto}}

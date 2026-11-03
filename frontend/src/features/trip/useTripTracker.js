@@ -7,7 +7,7 @@ import { useOnline } from '../../hooks/useOnline.js'
 import { useI18n } from '../../i18n/index.jsx'
 import { inIdf } from '../network.js'
 import { MIN, dueAnnouncements, estimateProgress, recalibrate } from './estimate.js'
-import { arrivalDetected, motionState, project, routeLine } from './motion.js'
+import { arrivalDetected, departureDetected, metres, motionState, project, routeLine } from './motion.js'
 import { patchTrip } from './tripStore.js'
 
 const TICK_MS = 15_000
@@ -30,7 +30,26 @@ export function useTripTracker(bundle) {
   const line = useMemo(() => (bundle ? routeLine(bundle.trip) : []), [bundle])
   const [motion, setMotion] = useState({ state: 'uncertain', metres: 0 })
   const [arrivedAt, setArrivedAt] = useState(bundle?.arrivedAt || null)
+  const [startedAt, setStartedAt] = useState(bundle?.startedAt || null)
+  const anchor = useRef(null)  // où l'usager attendait avant de partir
   const backwardSaid = useRef(false)
+
+  // On attend que l'usager bouge, partout en Île-de-France ; GPS refusé, absent ou hors région : on suit les horaires.
+  // Un signal perdu un instant (téléphone immobile, hoquet du GPS) ne lance pas le trajet.
+  const gpsUsable = ['searching', 'lost'].includes(gps.status) || (gps.status === 'ok' && inIdf(gps.coords))
+  const waiting = Boolean(bundle) && !startedAt && gpsUsable
+  const tripStart = bundle ? Date.parse(bundle.trip.start) : 0
+
+  const start = (at = Date.now()) => {
+    if (startedAt || !bundle) return
+    // Parti plus tard que prévu : le retard est repris dans l'estimation
+    const late = Math.max(0, at - tripStart)
+    setStartedAt(at)
+    setDelay(late)
+    patchTrip({ startedAt: at, delayMs: late })
+    announce(t('say.trip_started'))
+  }
+
 
   // Horloge : l'estimation avance même sans réseau
   useEffect(() => {
@@ -41,14 +60,26 @@ export function useTripTracker(bundle) {
   // Arrivée détectée : le trajet reste « arrivé » (l'horloge ne le fait pas revenir en arrière)
   const progress = useMemo(() => {
     if (!bundle) return null
+    // Pas encore parti : le trajet reste au départ et l'arrivée recule avec l'attente
+    if (waiting) return { ...estimateProgress(bundle.trip, now, Math.max(0, now - tripStart)), waitingDeparture: true }
     const end = Date.parse(bundle.trip.end) + delayMs + 1
     return estimateProgress(bundle.trip, arrivedAt ? Math.max(now, end) : now, delayMs)
-  }, [bundle, now, delayMs, arrivedAt])
+  }, [bundle, now, delayMs, arrivedAt, waiting, tripStart])
 
   // Recalage à chaque position GPS reçue
   useEffect(() => {
     // Position hors Île-de-France (démonstration à distance) : on suit les horaires, sans recalage
     if (!bundle || gps.status !== 'ok' || !inIdf(gps.coords)) return
+    const at = Date.now()
+    const fix = { t: at, lat: gps.coords.lat, lon: gps.coords.lon, accuracy: gps.coords.accuracy || 0 }
+    // Avant le départ : on note où l'usager attend, et on ne démarre que quand il s'en éloigne
+    if (!startedAt) {
+      // Point d'attente : affiné tant que la nouvelle position, plus précise, reste dans le cercle d'incertitude
+      if (!anchor.current || (fix.accuracy < anchor.current.accuracy && metres(anchor.current, fix) <= anchor.current.accuracy)) anchor.current = fix
+      history.current = [...history.current.filter((h) => at - h.t <= HISTORY_MS), { ...fix, along: project(line, fix).along }]
+      if (departureDetected(anchor.current, history.current)) start(at)
+      return
+    }
     const r = recalibrate(bundle.trip, Date.now(), gps.coords, delayMs)
     const back = prevGps.current === 'lost'
     if (back) announce(t('say.gps_back'))
@@ -61,8 +92,6 @@ export function useTripTracker(bundle) {
     setOffRoute(r.offRoute)
 
     // Mouvement le long du tracé : on garde 3 minutes de positions
-    const at = Date.now()
-    const fix = { t: at, lat: gps.coords.lat, lon: gps.coords.lon, accuracy: gps.coords.accuracy || 0 }
     history.current = [...history.current.filter((h) => at - h.t <= HISTORY_MS), { ...fix, along: project(line, fix).along }]
     const m = motionState(history.current, at)
     setMotion(m)
@@ -78,7 +107,7 @@ export function useTripTracker(bundle) {
       patchTrip({ arrivedAt: at })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gps.coords, gps.status])
+  }, [gps.coords, gps.status, startedAt])
 
   useEffect(() => { prevGps.current = gps.status }, [gps.status])
 
@@ -103,5 +132,5 @@ export function useTripTracker(bundle) {
   const walking = progress?.phase === 'walking'
   const source = gps.status === 'ok' && inIdf(gps.coords) && walking ? 'gps' : 'schedule'
 
-  return { progress, gps, online, source, delayMs, offRoute, motion, arrivedAt }
+  return { progress, gps, online, source, delayMs, offRoute, motion, arrivedAt, waiting, start }
 }

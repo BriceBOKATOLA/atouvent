@@ -32,6 +32,8 @@ async function request(path, { method = 'GET', body, query } = {}) {
   } catch {
     throw new ApiError(0, 'network')
   }
+  // Une page web à la place de l'API (domaine parqué, mauvaise adresse) : traité comme un serveur injoignable
+  if (res.ok && res.status !== 204 && !(res.headers.get('content-type') || '').includes('json')) throw new ApiError(0, 'network')
   const data = await res.json().catch(() => null)
   if (!res.ok) {
     // Erreur de validation (liste de champs) : message générique « vérifiez les informations »

@@ -250,10 +250,37 @@ Toutes les sources, leurs licences et leur fréquence de mise à jour : **`SOURC
 
 ## Application Android (APK)
 
-1. Mettre l'adresse publique HTTPS de l'API dans `frontend/.env.android` (`VITE_API_URL=https://…/api/v1`).
-2. `cd frontend && npm run build:android` puis `cd android && gradlew assembleDebug`
-   → `android/app/build/outputs/apk/debug/app-debug.apk` (Java 21, celui d'Android Studio).
-3. Version Play Store : `npm run android:open` puis Build > Generate Signed App Bundle.
+L'application Android (Capacitor, `com.atouvent.app`, Android 6 et plus) embarque le site et appelle l'API **en ligne**
+(`frontend/.env.android` : `https://atouvent.com/api/v1`). Elle ne fonctionne donc qu'une fois atouvent.com en ligne
+(section suivante) : tant que le domaine affiche la page d'attente de l'hébergeur, l'application indique « Pas de réseau ».
+
+| Commande (dans `frontend/`) | Résultat |
+|---|---|
+| `npm run android:apk` | APK de test à installer sur un téléphone : `android/app/build/outputs/apk/debug/app-debug.apk` |
+| `npm run android:release` | Play Store : `android/app/build/outputs/bundle/release/app-release.aab` (et un APK signé) |
+| `npm run android:open` | ouvre le projet dans Android Studio |
+
+- Java 21 : celui d'Android Studio est pris automatiquement.
+- **Signature Play Store** (une seule fois) : créer la clé avec la commande `keytool` indiquée dans
+  `android/keystore.properties.example`, puis copier ce fichier en `android/keystore.properties` et le remplir.
+  La clé et ses mots de passe ne sont jamais versionnés ; les perdre empêche toute mise à jour sur le Play Store.
+- À chaque nouvelle version : augmenter `versionCode` (et `versionName`) dans `android/app/build.gradle`.
+- Permissions demandées : position (itinéraires et suivi du trajet), vibration (alertes), état du réseau (mode hors ligne).
+- Le suivi du trajet ne démarre que lorsque le téléphone s'éloigne d'au moins 40 m de l'endroit où l'usager attendait
+  (partout en Île-de-France) ; bouton « Je pars maintenant » sans GPS. GPS refusé ou hors région : suivi par les horaires.
+
+## Mise en ligne (atouvent.com)
+
+Sur un serveur avec Docker (VPS, 2 Go de mémoire suffisent), ports 80 et 443 ouverts :
+
+1. Chez l'hébergeur du domaine (Hostinger, zone DNS) : enregistrements **A** `atouvent.com` et `www` vers l'adresse IP
+   du serveur (à la place de la page d'attente).
+2. Sur le serveur : cloner le dépôt, copier `backend/.env.example` en `backend/.env` et le remplir (secrets, clés,
+   `APP_URL=https://atouvent.com`, `CORS_ORIGINS` avec `https://localhost` pour l'application Android), puis copier
+   `backend/data/` (horaires et fichiers lourds, non versionnés).
+3. `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+   → Caddy obtient le certificat HTTPS tout seul (`deploy/Caddyfile`) ; site, API et flux en direct sur atouvent.com.
+4. Vérifier : `https://atouvent.com/api/v1/health` doit répondre `{"ok":true,…}`.
 
 ## Avant la mise en ligne
 

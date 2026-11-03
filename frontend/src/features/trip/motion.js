@@ -9,6 +9,7 @@ export const MOVE_M = 15                // progression minimale (en plus du brui
 export const POOR_ACCURACY_M = 80       // au-delà, la position est trop imprécise pour juger du mouvement
 export const ARRIVED_NEAR_M = 50        // arrivé : à moins de 50 m de la destination
 export const ARRIVED_STOPPED_M = 120    // ou à moins de 120 m et arrêté (entrée d'immeuble, quai, place…)
+export const DEPART_M = 40              // départ : à plus de 40 m (en plus du bruit GPS) de la première position
 
 /** Tracé du trajet en points { lat, lon, along } (mètres cumulés depuis le départ). */
 export function routeLine(trip) {
@@ -75,6 +76,14 @@ export function motionState(history, now = Date.now()) {
   if (progress <= -threshold) return { state: 'moving_backward', metres: Math.round(-progress) }
   if (progress >= threshold) return { state: 'moving_forward', metres: Math.round(progress) }
   return { state: 'uncertain', metres: Math.round(moved) }  // se déplace, mais en travers du tracé
+}
+
+/** Départ détecté : les deux dernières positions sont nettement éloignées du point où l'usager attendait (un GPS qui saute une fois ne suffit pas). */
+export function departureDetected(anchor, history) {
+  const last2 = history.slice(-2)
+  if (!anchor || last2.length < 2) return false
+  return last2.every((h) => (h.accuracy || 0) <= POOR_ACCURACY_M
+    && metres(anchor, h) >= DEPART_M + Math.max(anchor.accuracy || 0, h.accuracy || 0) / 2)
 }
 
 /** Arrivée détectée sans attendre que l'usager appuie sur « Je suis arrivé » : deux positions de suite à moins de 50 m de la destination, ou à moins de 120 m et à l'arrêt. */
