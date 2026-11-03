@@ -85,10 +85,10 @@ cp .env.example .env              # remplir JWT_SECRET et PROFILE_ENCRYPTION_KEY
 .venv/Scripts/python -m uvicorn app.main:app --port 8000
 .venv/Scripts/python -m app.worker   # collecteur (autre terminal)
 
-# Application (port 5173 par défaut ; /api est relayé vers le port 8000)
+# Application (port 5174 ; /api est relayé vers le port 8000)
 cd frontend
 npm install
-npm run dev                       # ou : npx vite --port 5174 si le port 5173 est déjà pris
+npm run dev                       # http://localhost:5174
 ```
 
 Données à préparer une fois (gros fichiers, non versionnés, régénérés depuis les sources ouvertes) :
@@ -110,7 +110,7 @@ Super admin : mettre son adresse dans `SUPERADMIN_EMAILS` puis
 ```bash
 cd backend && .venv/Scripts/python -m pytest      # API, calculateur, services, sécurité
 cd frontend && npm test                           # logique de l'application, traductions complètes
-# Accessibilité (application et API lancées ; BASE=http://localhost:5174 si besoin ; TOKEN=jeton pour les pages connectées)
+# Accessibilité (application et API lancées ; TOKEN=jeton pour les pages connectées)
 npm run a11y:contrast    # contrastes texte et contours, thèmes clair, sombre, contraste renforcé
 npm run a11y:audit       # noms accessibles, images, titres, langue, cibles tactiles, erreurs, débordement
 npm run a11y:keyboard    # tout est atteignable au clavier, focus toujours visible, pas de piège

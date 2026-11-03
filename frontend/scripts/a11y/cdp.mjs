@@ -1,12 +1,12 @@
 // Pilotage de Chrome sans interface (protocole DevTools) pour les contrôles d'accessibilité d'AtouVent.
 // Aucune dépendance : Node 22 (fetch et WebSocket intégrés) et Google Chrome installé.
-// Variables d'environnement : CHROME (chemin du navigateur), BASE (adresse de l'application, http://localhost:5173 par défaut).
+// Variables d'environnement : CHROME (chemin du navigateur), BASE (adresse de l'application, http://localhost:5174 par défaut).
 import { spawn } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-export const BASE = process.env.BASE || 'http://localhost:5173'
+export const BASE = process.env.BASE || 'http://localhost:5174'
 const CHROME = process.env.CHROME || 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 

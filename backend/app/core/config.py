@@ -75,7 +75,7 @@ class Settings:
 
     # Origines autorisées : site web + application Android (Capacitor : https://localhost et capacitor://localhost)
     cors_origins: list = field(default_factory=lambda: os.environ.get(
-        "CORS_ORIGINS", "http://localhost:5173,https://localhost,capacitor://localhost,http://localhost").split(","))
+        "CORS_ORIGINS", "http://localhost:5174,https://localhost,capacitor://localhost,http://localhost").split(","))
     # Derrière un proxy inverse (nginx, Caddy) : lire l'IP réelle dans X-Forwarded-For
     trust_proxy: bool = os.environ.get("TRUST_PROXY", "0") == "1"
     # Documentation interactive (/docs) : désactivée par défaut en production
@@ -89,7 +89,7 @@ class Settings:
     smtp_password: str = os.environ.get("SMTP_PASSWORD", "")
     smtp_from: str = os.environ.get("SMTP_FROM", "") or os.environ.get("SMTP_USER", "")
     # Adresse publique de l'application, utilisée dans les liens envoyés par e-mail
-    app_url: str = os.environ.get("APP_URL", "http://localhost:5173").rstrip("/")
+    app_url: str = os.environ.get("APP_URL", "http://localhost:5174").rstrip("/")
     reset_token_minutes: int = _int("RESET_TOKEN_MINUTES", 30)
 
     # Comptes super admin : rôle attribué automatiquement à ces adresses

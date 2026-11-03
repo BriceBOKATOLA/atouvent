@@ -81,7 +81,8 @@ export default defineConfig({
   ],
   build: { chunkSizeWarningLimit: 1100 }, // maplibre est chargé à la demande
   // Le dossier android/ (projet Capacitor) contient une copie de l'application : jamais surveillé ni analysé
-  server: { proxy: { '/api': 'http://localhost:8000' }, watch: { ignored: ['**/android/**'] } },
+  // Port fixe 5174 (5173 est souvent pris par d'autres projets) : il doit correspondre à APP_URL des liens envoyés par e-mail
+  server: { port: 5174, strictPort: true, proxy: { '/api': 'http://localhost:8000' }, watch: { ignored: ['**/android/**'] } },
   optimizeDeps: { entries: ['index.html'], include: ['maplibre-gl'] },
   // Worker de MapLibre en module ES (il importe le code partagé de MapLibre)
   worker: { format: 'es' },
