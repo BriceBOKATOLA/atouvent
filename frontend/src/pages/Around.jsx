@@ -128,7 +128,7 @@ export default function Around() {
           <h1 className="section-title__h1">{t('around.title')}</h1>
         </div>
 
-        {stations === null && <p className="loading" role="status">{t('app.loading')}</p>}
+        {stations === null && <div className="stations-loading"><p className="loading" role="status">{t('app.loading')}</p></div>}
         {stations?.length === 0 && <p className="card__meta">{t('around.no_station')}</p>}
         {stations?.map((s) => <StationCard key={s.id} station={s} />)}
 
@@ -211,12 +211,11 @@ function StationCard({ station }) {
                 <span className="station__dest">{next[0]?.destination ? t('around.towards', { dest: next[0].destination }) : t(`mode.${modeKey(l.mode)}`)}</span>
                 <span className={`station__ac station__ac--${l.ac}`}>{t(`around.ac_${l.ac}`)}</span>
               </div>
-              {next[0] && (
-                <div className="station__time">
-                  <strong>{t('around.min', { n: minutes(next[0]) })}</strong>
-                  {next[1] && <small>{t('around.then', { n: minutes(next[1]) })}</small>}
-                </div>
-              )}
+              {/* Colonne des passages toujours présente : la ligne ne se resserre pas quand les horaires arrivent */}
+              <div className="station__time">
+                {next[0] && <strong>{t('around.min', { n: minutes(next[0]) })}</strong>}
+                {next[1] && <small>{t('around.then', { n: minutes(next[1]) })}</small>}
+              </div>
             </li>
           )
         })}
