@@ -264,6 +264,8 @@ L'application Android (Capacitor, `com.atouvent.app`, Android 6 et plus) embarqu
 - **Signature Play Store** (une seule fois) : créer la clé avec la commande `keytool` indiquée dans
   `android/keystore.properties.example`, puis copier ce fichier en `android/keystore.properties` et le remplir.
   La clé et ses mots de passe ne sont jamais versionnés ; les perdre empêche toute mise à jour sur le Play Store.
+- **Play Store** : textes, réponses aux questionnaires (sécurité des données, contenu), icône, bannière et captures
+  dans `play-store/` (`play-store/fiche.md`). Application ciblant Android 16 (API 36), exigé par Google depuis août 2026.
 - À chaque nouvelle version : augmenter `versionCode` (et `versionName`) dans `android/app/build.gradle`.
 - Permissions demandées : position (itinéraires et suivi du trajet), vibration (alertes), état du réseau (mode hors ligne).
 - Le suivi du trajet ne démarre que lorsque le téléphone s'éloigne d'au moins 40 m de l'endroit où l'usager attendait
@@ -281,6 +283,11 @@ Sur un serveur avec Docker (VPS, 2 Go de mémoire suffisent), ports 80 et 443 ou
 3. `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
    → Caddy obtient le certificat HTTPS tout seul (`deploy/Caddyfile`) ; site, API et flux en direct sur atouvent.com.
 4. Vérifier : `https://atouvent.com/api/v1/health` doit répondre `{"ok":true,…}`.
+
+**Serveur partagé avec d'autres sites** (nginx déjà sur 80/443, cas du serveur actuel) : `docker-compose.vps.yml`
+(AtouVent sur `127.0.0.1:8090`, mémoire plafonnée) et `deploy/nginx-atouvent.conf`. Installation une fois en root :
+`bash /home/deploy/atouvent/deploy/install-vps.sh` (nginx testé avant rechargement, certificat certbot). Mise à jour :
+envoyer les nouvelles images dans `/home/deploy/atouvent/images.tar.gz`, puis `bash /home/deploy/atouvent/deploy/update-vps.sh`.
 
 ## Avant la mise en ligne
 
