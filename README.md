@@ -1,8 +1,10 @@
-# AtouVent
+# AtouVent Maquette
 
 Se déplacer en Île-de-France malgré la chaleur, les orages, le froid, la neige, le vent et les crues.
 Application web installable (PWA, APK Android) et écrans pour les décideurs, réalisés pour le
 **Hackathon Mobilités 2026 « Spécial Dataviz' » (Île-de-France Mobilités), défi 1 : canicules**, avec un regard sur les inégalités.
+
+- **Maquette**
 
 <p align="center">
   <img src="design/figma/charte-01-couverture.png" alt="Couverture de la charte AtouVent" width="720">
