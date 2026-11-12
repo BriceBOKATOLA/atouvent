@@ -511,6 +511,7 @@ export default {
   'auth.reset_save': 'Guardar la contraseña',
   'auth.reset_missing': 'Enlace incompleto. Solicite un nuevo correo.',
   'auth.privacy_notice': 'Al crear una cuenta, acepta la',
+  'legal.link': 'Aviso legal',
   'privacy.link': 'política de privacidad',
   'privacy.cookies': 'Cookies',
   'account.password_title': 'Cambiar la contraseña',

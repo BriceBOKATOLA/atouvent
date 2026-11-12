@@ -511,6 +511,7 @@ export default {
   'auth.reset_save': '保存密码',
   'auth.reset_missing': '链接不完整。请重新申请邮件。',
   'auth.privacy_notice': '创建账户即表示您接受',
+  'legal.link': '法律声明',
   'privacy.link': '隐私政策',
   'privacy.cookies': 'Cookie',
   'account.password_title': '修改密码',
