@@ -64,7 +64,7 @@ describe('dueAnnouncements', () => {
     expect(first.map((a) => a.key)).toEqual(['say.saved', 'say.elevator_out'])
     first.forEach((a) => done.add(a.id))
     const before = dueAnnouncements(bundle, estimateProgress(trip, T0 + 5 * MIN), T0 + 5 * MIN, done)
-    expect(before.map((a) => a.key)).toEqual(['say.underground'])
+    expect(before.map((a) => a.key)).toEqual(['say.underground', 'say.board'])
   })
 
   it('annonce un arrêt avant la descente, une seule fois', () => {
@@ -75,5 +75,21 @@ describe('dueAnnouncements', () => {
     expect(a[0].params.stop).toBe('Étoile')
     done.add(a[0].id)
     expect(dueAnnouncements(bundle, estimateProgress(trip, now), now, done)).toHaveLength(0)
+  })
+})
+
+describe('annonce de montée', () => {
+  const bundle = { trip, warnings: [] }
+  it('annonce le train à prendre 2 min avant d\'arriver sur le quai, une seule fois', () => {
+    const done = new Set()
+    const now = T0 + 3.5 * MIN  // fin de la marche vers Gare de Lyon
+    const a = dueAnnouncements(bundle, estimateProgress(trip, now), now, done).find((x) => x.key === 'say.board')
+    expect(a).toMatchObject({ id: 'board-1', params: { board: 1, eta: Date.parse(at(8)) } })
+    done.add(a.id)
+    const later = T0 + 6 * MIN  // sur le quai
+    expect(dueAnnouncements(bundle, estimateProgress(trip, later), later, done).some((x) => x.key === 'say.board')).toBe(false)
+  })
+  it('ne l\'annonce pas en début de marche', () => {
+    expect(dueAnnouncements(bundle, estimateProgress(trip, T0), T0, new Set()).some((x) => x.key === 'say.board')).toBe(false)
   })
 })

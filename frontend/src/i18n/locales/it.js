@@ -433,6 +433,8 @@ export default {
   'say.elevator_out': 'Attenzione: ascensore guasto a {station}. Valuta un altro percorso finché hai la rete.',
   'say.hazard': 'Avviso all’arrivo: {hazard}.',
   'say.hot_arrival': 'All’arrivo la temperatura percepita sarà di circa {t} gradi.',
+  'say.board': 'A {stop}, prendete {line} alle {time}.',
+  'say.board_dir': 'A {stop}, prendete {line} direzione {dir}, partenza alle {time}.',
   'say.alight_next': 'Prossima fermata: {stop}. Scendi qui.',
   'say.gps_back': 'Posizione ritrovata. Viaggio aggiornato.',
   'say.late': 'Sei in ritardo di circa {n} minuti sull’orario previsto.',

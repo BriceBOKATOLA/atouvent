@@ -433,6 +433,8 @@ export default {
   'say.elevator_out': '注意：{station} 电梯故障。请在还有网络时考虑更换路线。',
   'say.hazard': '到达时提醒：{hazard}。',
   'say.hot_arrival': '到达时体感温度约 {t} 度。',
+  'say.board': '在 {stop}，{time} 乘坐 {line}。',
+  'say.board_dir': '在 {stop}，{time} 乘坐开往 {dir} 的 {line}。',
   'say.alight_next': '下一站：{stop}。请在此下车。',
   'say.gps_back': '已重新定位，行程已更新。',
   'say.late': '您比原定时间晚了约 {n} 分钟。',

@@ -376,6 +376,20 @@ def to_itinerary(net: Network, raw: dict, origin, dest, day: date, origin_name: 
             "legs": legs, "source": "gtfs"}
 
 
+def doubles_back(it: dict) -> bool:
+    """Aller-retour : le trajet repasse par une gare déjà traversée (ex. RER D vers le nord pour reprendre un D vers le sud)."""
+    seen: set[str] = set()
+    for l in it["legs"]:
+        if l["mode"] in ("WALK", "BICYCLE"):
+            continue
+        names = [l["from"]["name"], *(s["name"] for s in l.get("stops") or []), l["to"]["name"]]
+        # La gare de correspondance (montée de cette étape) est forcément déjà vue : on ne la compte pas
+        if any(n in seen for n in names[1:]):
+            return True
+        seen.update(names)
+    return False
+
+
 def plan(origin, dest, when: datetime, wheelchair: bool = False, count: int = 3,
          origin_name: str = "Départ", dest_name: str = "Arrivée", bus: bool = True, rail: bool = True,
          slow: bool = False, avoid: set[str] | None = None) -> list[dict]:
@@ -384,7 +398,7 @@ def plan(origin, dest, when: datetime, wheelchair: bool = False, count: int = 3,
     blocked = np.array([s["name"] in avoid for s in net.stops], dtype=bool) if avoid else None
     local = when.astimezone(PARIS)
     day, t0 = local.date(), local.hour * 3600 + local.minute * 60 + local.second
-    out, seen, kept = [], set(), []
+    out, seen, kept, back = [], set(), [], []
     for _ in range(count + 2):
         raw = net.earliest(origin, dest, t0, day, wheelchair, bus, rail, SLOW if slow or wheelchair else 1.0, blocked)
         if not raw or not any(l[0] == "trip" for l in raw["legs"]):
@@ -394,7 +408,11 @@ def plan(origin, dest, when: datetime, wheelchair: bool = False, count: int = 3,
         rides = len(key)
         # Écarte les détours : plus de correspondances que la meilleure solution pour arriver plus tard
         detour = out and rides > min(r for r, _ in kept) and it["end"] > out[0]["end"]
-        if key not in seen and not detour:
+        if key not in seen and doubles_back(it):
+            # Aller-retour gardé de côté : proposé seulement s'il n'y a rien d'autre
+            seen.add(key)
+            back.append(it)
+        elif key not in seen and not detour:
             seen.add(key)
             kept.append((rides, it["end"]))
             out.append(it)
@@ -403,4 +421,4 @@ def plan(origin, dest, when: datetime, wheelchair: bool = False, count: int = 3,
         t0 = int(raw["dep"][first[1]]) + 60 - raw["walk_start"]
         if len(out) >= count:
             break
-    return out
+    return out or back[:1]

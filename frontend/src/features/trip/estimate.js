@@ -115,6 +115,14 @@ export function dueAnnouncements({ trip, warnings }, progress, now, done, { warn
     }
   })
 
+  // Montée (départ et correspondances) : quelle ligne, quelle direction, à quelle heure ; sur le quai ou 2 min avant d'y arriver
+  trip.legs.forEach((leg, i) => {
+    if (['WALK', 'BICYCLE'].includes(leg.mode) || progress.phase === 'arrived') return
+    const onPlatform = progress.legIndex === i && progress.phase === 'waiting'
+    const almost = progress.legIndex === i - 1 && progress.phase === 'walking' && progress.minutesToLegEnd <= 2
+    if (onPlatform || almost) push(`board-${i}`, 'say.board', { board: i, eta: ms(leg.start) })
+  })
+
   // Un arrêt avant la descente
   if (warnBefore && progress.phase === 'riding' && progress.stopsLeft === 1) {
     push(`alight-${progress.legIndex}`, 'say.alight_next', { stop: progress.leg.to.name }, true)

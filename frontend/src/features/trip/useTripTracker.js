@@ -5,7 +5,7 @@ import { usePrefs } from '../../context/PrefsContext.jsx'
 import { useGeolocation } from '../../hooks/useGeolocation.js'
 import { useOnline } from '../../hooks/useOnline.js'
 import { useI18n } from '../../i18n/index.jsx'
-import { inIdf } from '../network.js'
+import { inIdf, legDirection, legLabel } from '../network.js'
 import { MIN, dueAnnouncements, estimateProgress, recalibrate } from './estimate.js'
 import { arrivalDetected, departureDetected, metres, motionState, project, routeLine } from './motion.js'
 import { patchTrip } from './tripStore.js'
@@ -122,6 +122,12 @@ export function useTripTracker(bundle) {
       if (params.eta) params.time = time(params.eta)
       if (params.hazard) params.hazard = t(`hazard.${params.hazard}`)
       done.current.add(a.id)
+      // Montée : ligne, direction (terminus) et arrêt, pour savoir quel train prendre sans regarder l'écran
+      if (params.board != null) {
+        const leg = bundle.trip.legs[params.board]
+        const dir = legDirection(leg)
+        return t(dir ? 'say.board_dir' : 'say.board', { ...params, line: legLabel(leg), dir, stop: leg.from.name })
+      }
       return t(a.key, params)
     }).join(' ')
     announce(text, { urgent: due.some((a) => a.urgent) })

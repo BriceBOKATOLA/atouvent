@@ -433,6 +433,8 @@ export default {
   'say.elevator_out': 'Warning: lift out of service at {station}. Consider changing route while you still have network.',
   'say.hazard': 'Alert at arrival: {hazard}.',
   'say.hot_arrival': 'It will feel like about {t} degrees at arrival.',
+  'say.board': 'At {stop}, take {line} at {time}.',
+  'say.board_dir': 'At {stop}, take {line} towards {dir}, leaving at {time}.',
   'say.alight_next': 'Next stop: {stop}. Get off here.',
   'say.gps_back': 'Position found. Trip updated.',
   'say.late': 'You are about {n} minutes behind schedule.',
