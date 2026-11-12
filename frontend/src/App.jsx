@@ -10,6 +10,18 @@ import { routes } from './routes.jsx'
 
 const router = createBrowserRouter(routes)
 
+// Chaque page commence en haut : nouvelle page, retour arrière et rechargement (sauf lien vers une section #…)
+if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+let lastPath = router.state.location.pathname
+router.subscribe(({ location }) => {
+  if (location.pathname === lastPath) return
+  lastPath = location.pathname
+  if (location.hash) return
+  window.scrollTo(0, 0)
+  // Page chargée à la demande : on recommence une fois affichée
+  requestAnimationFrame(() => window.scrollTo(0, 0))
+})
+
 function Fallback() {
   const { t } = useI18n()
   return <p className="loading" role="status" style={{ padding: 24 }}>{t('app.loading')}</p>
