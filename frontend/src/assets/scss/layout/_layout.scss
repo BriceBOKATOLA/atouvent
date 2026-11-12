@@ -1,4 +1,4 @@
-// Structure de l'application : en-tête, contenu, navigation basse (mobile) ou latérale (grand écran)
+// Structure de l'application : en-tête, contenu, navigation basse (mobile et grand écran)
 @use "../abstracts/breakpoints" as bp;
 
 /* Structure de l'application : en-tête, contenu, navigation basse */
@@ -43,18 +43,8 @@
 .bottom-nav a[aria-current="page"]{color:var(--bleu);font-weight:700}
 .bottom-nav a[aria-current="page"] svg{stroke-width:2.6}
 
-/* Écran large : navigation latérale */
-@include bp.up(lg){
-  .bottom-nav{inset:0 auto 0 0;width:200px;border-top:0;border-right:1px solid var(--bord);padding-top:24px}
-  .bottom-nav ul{grid-template-columns:1fr;gap:4px;padding:0 12px}
-  .bottom-nav a{flex-direction:row;justify-content:flex-start;gap:12px;padding:0 12px;min-height:52px;border-radius:var(--r-s);font-size:.9375rem}
-  .bottom-nav a[aria-current="page"]{background:var(--ciel-pale)}
-  .app{padding-left:200px}
-  .app-main{padding-bottom:40px}
-}
+/* Écran large : même navigation basse que sur mobile (pas de barre latérale) */
 .page-head__title--compact{font-size:1.25rem;font-weight:700;color:#DCE3EC!important}
 
 /* Écrans plein écran (sans navigation basse) */
 .app--full .app-main{padding-bottom:24px}
-// Pages sans navigation (langue, connexion, inscription, plein écran) : pas de place réservée au menu latéral
-@include bp.up(lg){ .app--full, .app--plain{padding-left:0} }

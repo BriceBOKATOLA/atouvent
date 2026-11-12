@@ -16,5 +16,6 @@ services:
     mem_limit: 900m
 
   worker:
-    environment: { MONGO_URI: "mongodb://mongo:27017", TRUST_PROXY: "1" }
+    # Horaires IDFM reconstruits sur le PC (1,9 Go de mémoire) et envoyés par deploy/maj-horaires.ps1 : ici, vérification seule
+    environment: { MONGO_URI: "mongodb://mongo:27017", TRUST_PROXY: "1", GTFS_BUILD: "0" }
     mem_limit: 600m

@@ -34,6 +34,17 @@ def valid_until() -> date | None:
     return datetime.strptime(end, "%Y%m%d").date() if end else None
 
 
+def check_sent() -> str:
+    """Serveur trop petit pour reconstruire (GTFS_BUILD=0) : on vérifie seulement les horaires envoyés par le PC
+    (deploy/maj-horaires.ps1). Échec signalé s'ils manquent ou expirent dans moins de 10 jours."""
+    until = valid_until()
+    if until is None:
+        raise RuntimeError("horaires absents : à envoyer depuis le PC (deploy/maj-horaires.ps1)")
+    if until - date.today() < timedelta(days=10):
+        raise RuntimeError(f"horaires valables jusqu'au {until:%d/%m/%Y} seulement : à renvoyer depuis le PC (deploy/maj-horaires.ps1)")
+    return f"horaires valables jusqu'au {until:%d/%m/%Y} (reconstruits sur le PC)"
+
+
 def upstream_modified(client: httpx.Client | None = None) -> datetime | None:
     r = (client or httpx).head(URL, timeout=30, follow_redirects=True)
     r.raise_for_status()

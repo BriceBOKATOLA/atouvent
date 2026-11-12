@@ -1,6 +1,7 @@
 """Planificateur de collecte : à lancer dès maintenant et sans interruption.
 Lancer : python -m app.worker"""
 import logging
+import os
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -36,7 +37,9 @@ def main():
     sched.add_job(lambda: velib.collect_information(db), "cron", hour=3, id="velib_information")
     sched.add_job(lambda: ascenseurs.collect(db), "interval", minutes=settings.elevators_every_min, id="elevators")
     # Horaires IDFM : vérifiés chaque nuit, téléchargés et reconstruits seulement s'ils ont changé (ou expirent bientôt)
-    sched.add_job(lambda: _safe("gtfs", refresh.refresh), "cron", hour=2, minute=30, id="gtfs_refresh")
+    # GTFS_BUILD=0 (petit serveur) : reconstruction faite sur un autre poste, ici simple vérification de validité
+    gtfs_job = refresh.refresh if os.environ.get("GTFS_BUILD", "1") != "0" else refresh.check_sent
+    sched.add_job(lambda: _safe("gtfs", gtfs_job), "cron", hour=2, minute=30, id="gtfs_refresh")
     # Crue (Vigicrues) et hauteur des rivières (Hub'Eau) : rafraîchies même sans visite, pour des données toujours à jour
     sched.add_job(lambda: _safe("flood", lambda: flood.vigilance(db)["level"]), "interval", minutes=15, id="flood")
     sched.add_job(lambda: _safe("rivers", lambda: len(hydro.rivers(db))), "interval", minutes=15, id="rivers")
