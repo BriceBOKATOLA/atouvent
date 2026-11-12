@@ -284,6 +284,11 @@ Sur un serveur avec Docker (VPS, 2 Go de mémoire suffisent), ports 80 et 443 ou
    → Caddy obtient le certificat HTTPS tout seul (`deploy/Caddyfile`) ; site, API et flux en direct sur atouvent.com.
 4. Vérifier : `https://atouvent.com/api/v1/health` doit répondre `{"ok":true,…}`.
 
+**Horaires IDFM** : IDFM ne publie que 4 semaines d'horaires à l'avance, et le serveur est trop petit pour les reconstruire
+(1,9 Go de mémoire). Le PC s'en charge : `deploy/maj-horaires.ps1` (tâche Windows quotidienne) reconstruit le réseau quand IDFM
+publie un nouveau fichier ou quand les horaires expirent dans moins de 10 jours, puis l'envoie sur le serveur ; journal dans
+`backend/data/maj-horaires.log`. Option `-Envoyer` pour renvoyer les horaires actuels.
+
 **Serveur partagé avec d'autres sites** (nginx déjà sur 80/443, cas du serveur actuel) : `docker-compose.vps.yml`
 (AtouVent sur `127.0.0.1:8090`, mémoire plafonnée) et `deploy/nginx-atouvent.conf`. Installation une fois en root :
 `bash /home/deploy/atouvent/deploy/install-vps.sh` (nginx testé avant rechargement, certificat certbot). Mise à jour :
