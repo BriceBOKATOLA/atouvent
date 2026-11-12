@@ -172,3 +172,7 @@
 .trip-wait p{margin:0 0 10px}
 .trip-wait .btn{width:100%}
 @media (min-width:600px){.trip-wait .btn{width:auto}}
+// Directions, correspondances et sortie sous les lignes de la carte d'itinéraire
+.it-dirs{margin:0;font-size:.875rem;line-height:1.45;color:var(--texte)}
+.it-dirs span{display:inline}
+.it-dirs span + span::before{content:" · ";color:var(--texte-2)}

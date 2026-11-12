@@ -62,6 +62,17 @@ class Network:
         # Courses de bus (exclues quand l'usager ne veut que le ferré)
         self.trip_bus = np.array([r["type"] == "3" for r in self.routes], dtype=bool)[self.trip_route]
 
+    def terminus(self, trip: int) -> str | None:
+        """Nom du terminus d'une course (« direction » lisible : les RER n'ont qu'un code de mission comme ROPO)."""
+        if not hasattr(self, "_last_stop"):
+            # Liaisons triées par heure : la dernière liaison de chaque course arrive au terminus
+            rev = self.ct[::-1]
+            trips, first = np.unique(rev, return_index=True)
+            self._last_stop = np.full(len(self.trip_route), -1, dtype=np.int64)
+            self._last_stop[trips] = self.ca[len(rev) - 1 - first]
+        i = int(self._last_stop[trip])
+        return self.stops[i]["name"] if i >= 0 else None
+
     def _footpaths(self, foot):
         # Arrêts voisins puis correspondances déclarées (transfers.txt), qui remplacent la marche estimée
         out: dict[int, dict[int, int]] = {}
@@ -348,7 +359,7 @@ def to_itinerary(net: Network, raw: dict, origin, dest, day: date, origin_name: 
         tunnel = mode == "RAIL" and route["line"] in RER and all(
             distance_m((float(net.lat[i]), float(net.lon[i])), RER_TUNNEL[0]) <= RER_TUNNEL[1]
             for i in [int(net.cs[c0])] + [int(net.ca[idx[k]]) for k in ks])
-        legs.append({"mode": mode, "line": route["line"], "headsign": net.headsigns[trip] or None,
+        legs.append({"mode": mode, "line": route["line"], "headsign": net.headsigns[trip] or None, "direction": net.terminus(trip),
                      "start": _iso(day, int(dep[k0])), "end": _iso(day, int(arr[k1])),
                      "from": _place(net, int(net.cs[c0])), "to": _place(net, int(net.ca[c1])), "stops": stops,
                      "underground": mode == "SUBWAY" or tunnel, "route_id": route["id"],

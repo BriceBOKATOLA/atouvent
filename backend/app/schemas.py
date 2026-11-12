@@ -118,6 +118,7 @@ class Leg(BaseModel):
     mode: str = Field(pattern=r"^[A-Z_]{2,20}$")
     line: str | None = Field(default=None, max_length=40)
     headsign: str | None = Field(default=None, max_length=200)
+    direction: str | None = Field(default=None, max_length=200)  # terminus de la course (lisible, contrairement aux codes de mission RER)
     start: datetime
     end: datetime
     from_: Place = Field(alias="from")

@@ -6,7 +6,7 @@ import Icon from '../../components/Icon.jsx'
 import PageHead from '../../components/PageHead.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { usePrefs } from '../../context/PrefsContext.jsx'
-import { inIdf, legLabel as label, lineIndex, loadNetwork, PARIS, readableOn } from '../../features/network.js'
+import { inIdf, legDirection, legLabel as label, lineIndex, loadNetwork, PARIS, readableOn } from '../../features/network.js'
 import { localWarnings } from '../../features/trip/estimate.js'
 import { accessNotes, amenityChips, stopNotes } from '../../features/trip/stopInfo.js'
 import ClimateBanner from './ClimateBanner.jsx'
@@ -335,10 +335,10 @@ export default function Itineraries() {
         {dest && (
           <>
             <DepartPicker value={departAt} onChange={setDepartAt} planned={weather ? weather.planned : undefined} t={t} />
-            <div className="segmented" role="group" aria-label={t('it.title')}>
+            <div className="segmented segmented--sort" role="group" aria-label={t('it.title')}>
               {['best', 'fastest', 'eco', 'step_free'].map((k) => (
                 <button key={k} type="button" aria-pressed={sort === k} onClick={() => setSort(k)}>
-                  {k === 'step_free' && <Icon name="a11y" size={16} />}{k === 'eco' && <Icon name="leaf" size={16} />} {t(`it.${k === 'best' ? 'safest' : k}`)}
+                  {k === 'step_free' && <Icon name="a11y" size={16} />}{k === 'eco' && <Icon name="leaf" size={16} />}<span>{t(`it.${k === 'best' ? 'safest' : k}`)}</span>
                 </button>
               ))}
             </div>
@@ -406,6 +406,9 @@ function ItineraryCard({ it, lines, selected, onPick, onFollow, later, busy, t, 
     ...notes.bad.map((n) => t(n.key, n.key === 'trip.reports' ? { n: n.params.n, kinds: n.params.kinds.map((k) => t(`report.${k}`).toLowerCase()).join(', ') } : n.params)),
   ].filter(Boolean)
 
+  const boardings = it.legs.filter((l) => !['WALK', 'BICYCLE'].includes(l.mode))
+  const exit = it.legs.at(-1)?.mode === 'WALK' ? it.legs.at(-1).entrance : null
+
   return (
     <article className={`card it-card${selected ? ' card--selected' : ''}${best ? ' it-card--best' : ''}`}>
       {best && (
@@ -437,6 +440,17 @@ function ItineraryCard({ it, lines, selected, onPick, onFollow, later, busy, t, 
           )
         })}
       </ol>
+      {/* Lignes avec leur direction, correspondances et sortie : de quoi partir sans ouvrir le détail */}
+      {!active(it) && boardings.length > 0 && (
+        <p className="it-dirs">
+          {boardings.map((l, k) => {
+            const dir = legDirection(l)
+            const line = dir ? t('it.line_towards', { line: label(l), dir }) : label(l)
+            return <span key={k}>{k === 0 ? line : t('it.then_at', { stop: l.from.name, what: line })}</span>
+          })}
+          {exit && <span>{t('it.exit_by', { name: exit })}</span>}
+        </p>
+      )}
       <p className="it-times">
         {[b.walk > 0 && t('it.time_walk', { n: b.walk }), b.wait > 0 && t('it.time_wait', { n: b.wait }),
           !active(it) && (b.changes ? t('it.time_changes', { n: b.changes }) : t('it.time_direct')),
@@ -464,7 +478,8 @@ function ItineraryCard({ it, lines, selected, onPick, onFollow, later, busy, t, 
                   {l.distance_m ? ` · ${t('it.meters_walk', { m: l.distance_m })}` : ''}
                   {l.entrance && <small className="it-entrance"><Icon name="pin" size={14} /> {t(j === 0 ? 'it.enter_by' : 'it.exit_by', { name: l.entrance })}</small>}</>
                   : l.mode === 'BICYCLE' ? t('it.step_bike', { from: l.from.name, place: l.to.name, n: mins(l.start, l.end) })
-                    : t('it.step_ride', { line: label(l), from: l.from.name, place: l.to.name, dir: l.headsign || '—', n: mins(l.start, l.end) })}
+                    : (legDirection(l) ? t('it.step_ride', { line: label(l), from: l.from.name, place: l.to.name, dir: legDirection(l), n: mins(l.start, l.end) })
+                      : t('it.step_ride_nodir', { line: label(l), from: l.from.name, place: l.to.name, n: mins(l.start, l.end) }))}
                   {/* Équipements de l'arrêt de montée */}
                   {amenityChips(l.from.info, l.mode).length > 0 && (
                     <span className="stop-chips">

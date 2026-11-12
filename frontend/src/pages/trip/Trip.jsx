@@ -5,7 +5,7 @@ import Icon from '../../components/Icon.jsx'
 import PageHead from '../../components/PageHead.jsx'
 import { useAnnouncer } from '../../context/AnnouncerContext.jsx'
 import { usePrefs } from '../../context/PrefsContext.jsx'
-import { legLabel as lineLabel, lineIndex, loadNetwork } from '../../features/network.js'
+import { legDirection, legLabel as lineLabel, lineIndex, loadNetwork } from '../../features/network.js'
 import { MIN } from '../../features/trip/estimate.js'
 import { clearTrip, loadTrip } from '../../features/trip/tripStore.js'
 import { useTripTracker } from '../../features/trip/useTripTracker.js'
@@ -87,7 +87,7 @@ function TripTracking({ bundle, onEnd }) {
       </header>
 
       <main id="contenu" className="app-main trip-main">
-        <NextStep progress={progress} />
+        <NextStep progress={progress} legs={trip.legs} />
 
         {/* Arrivée détectée par le GPS, sans attendre que l'usager appuie sur « Je suis arrivé » */}
         {arrivedAt && (
@@ -178,7 +178,7 @@ function GpsChip({ gps, online }) {
 }
 
 // Carte « prochaine étape », la plus visible de l'écran
-function NextStep({ progress }) {
+function NextStep({ progress, legs }) {
   const { t } = useI18n()
   const { phase, leg } = progress
   let title
@@ -187,17 +187,23 @@ function NextStep({ progress }) {
     title = t('say.arrived')
   } else if (phase === 'riding' && leg.mode !== 'BICYCLE') {
     title = t('trip.alight_at', { stop: leg.to.name })
-    detail = progress.stopsLeft > 1
+    // Dernière descente : la sortie à prendre, pour ne pas chercher sur le quai
+    const after = legs[progress.legIndex + 1]
+    const exit = after?.mode === 'WALK' && progress.legIndex + 1 === legs.length - 1 && after.entrance
+    detail = [progress.stopsLeft > 1
       ? t('trip.stops_left', { n: progress.stopsLeft, min: progress.minutesToLegEnd })
-      : t('trip.one_stop_left', { min: progress.minutesToLegEnd })
+      : t('trip.one_stop_left', { min: progress.minutesToLegEnd }), exit && t('it.exit_by', { name: exit })].filter(Boolean).join(' · ')
   } else if (leg.mode === 'BICYCLE') {
     title = t('trip.bike_to', { place: leg.to.name })
     detail = progress.minutesToLegEnd != null ? t('it.minutes', { n: progress.minutesToLegEnd }) : ''
   } else if (leg.mode === 'WALK') {
     title = t('trip.walk_to', { place: leg.to.name })
-    detail = progress.minutesToLegEnd != null ? t('it.minutes', { n: progress.minutesToLegEnd }) : ''
+    // Entrée de gare conseillée au départ, sortie à l'arrivée
+    const door = leg.entrance && t(progress.legIndex === 0 ? 'it.enter_by' : 'it.exit_by', { name: leg.entrance })
+    detail = [progress.minutesToLegEnd != null && t('it.minutes', { n: progress.minutesToLegEnd }), door].filter(Boolean).join(' · ')
   } else {
-    title = t('trip.wait_at', { line: lineLabel(leg), stop: leg.from.name })
+    const dir = legDirection(leg)
+    title = dir ? t('trip.wait_at_dir', { line: lineLabel(leg), dir, stop: leg.from.name }) : t('trip.wait_at', { line: lineLabel(leg), stop: leg.from.name })
   }
   return (
     <section className="next-step" aria-labelledby="next-title">
@@ -245,14 +251,15 @@ function Steps({ trip, progress, line, estimated }) {
       ? t('trip.between', { a: progress.current.name, b: progress.next.name }) : `${leg.from.name} → ${leg.to.name}`
     items.push({
       key: i, state: s,
-      title: s === 'current' && progress.phase === 'riding' ? t('trip.in_line', { line: lineLabel(leg) }) : t('trip.connection', { line: lineLabel(leg), stop: leg.from.name }),
+      title: s === 'current' && progress.phase === 'riding' ? t('trip.in_line', { line: lineLabel(leg) }) : (legDirection(leg) ? t('trip.connection_dir', { line: lineLabel(leg), dir: legDirection(leg), stop: leg.from.name }) : t('trip.connection', { line: lineLabel(leg), stop: leg.from.name })),
       meta: s === 'done' ? t('trip.done') : [between, acText(leg), leg.underground ? t('it.underground') : ''].filter(Boolean).join(' · '),
       time: s === 'current' ? null : leg.start,
     })
   })
   const walkEnd = last.mode === 'WALK' ? Math.round((Date.parse(last.end) - Date.parse(last.start)) / 60000) : null
   items.push({ key: 'end', state: arrived ? 'done' : last.mode === 'WALK' && progress.legIndex === legs.length - 1 ? 'current' : 'next', arrival: true,
-    title: t('trip.arrival', { place: last.to.name }), meta: walkEnd ? t('trip.walk_min', { n: walkEnd }) : '', time: trip.end })
+    title: t('trip.arrival', { place: last.to.name }),
+    meta: [walkEnd && t('trip.walk_min', { n: walkEnd }), last.mode === 'WALK' && last.entrance && t('it.exit_by', { name: last.entrance })].filter(Boolean).join(' · '), time: trip.end })
 
   return (
     <ol className="steps" aria-label={t('trip.steps')}>

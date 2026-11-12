@@ -38,6 +38,9 @@ export function nearestStations(gares, pos, { count = 2, maxM = 1200 } = {}) {
 
 // Libellé court d'une étape : « M 14 », « RER A », « T3a », « L » (Transilien), « Bus 38 »
 const RER = new Set(['A', 'B', 'C', 'D', 'E'])
+// Direction lisible : terminus de la course ; le code de mission RER (4 majuscules, ex. ROPO) n'est pas montré
+export const legDirection = (leg) => leg.direction || (leg.headsign && !/^[A-Z]{4}$/.test(leg.headsign) ? leg.headsign : null)
+
 export function legLabel(leg) {
   const line = leg.line || ''
   if (leg.mode === 'SUBWAY') return `M ${line}`
