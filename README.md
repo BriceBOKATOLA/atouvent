@@ -4,6 +4,28 @@ Se déplacer en Île-de-France malgré la chaleur, les orages, le froid, la neig
 Application web installable (PWA, APK Android) et écrans pour les décideurs, réalisés pour le
 **Hackathon Mobilités 2026 « Spécial Dataviz' » (Île-de-France Mobilités), défi 1 : canicules**, avec un regard sur les inégalités.
 
+<p align="center">
+  <img src="design/figma/charte-01-couverture.png" alt="Couverture de la charte AtouVent" width="720">
+</p>
+
+<p align="center">
+  <img src="design/figma/maquette-03-autour-de-moi.png" alt="Maquette de l'écran Autour de moi : météo, alerte chaleur, gares proches et lignes climatisées" width="240">
+  <img src="design/figma/maquette-04-choisir-un-itineraire.png" alt="Maquette de l'écran Choisir un itinéraire : durée, ombre, climatisation et accessibilité de chaque trajet" width="240">
+  <img src="design/figma/maquette-03en-around-me.png" alt="Maquette de l'écran Autour de moi en anglais" width="240">
+</p>
+
+<p align="center">
+  <img src="design/figma/charte-03-logo.png" alt="Planche du logo AtouVent" width="360">
+  <img src="design/figma/charte-06-typographie.png" alt="Planche de la typographie AtouVent" width="360">
+</p>
+
+<p align="center">
+  <img src="design/figma/flyer-2-accessibilite-a5.png" alt="Flyer AtouVent sur l'accessibilité, format A5" width="300">
+  <img src="design/figma/rgaa-3-wcag-2-2-et-declaration.png" alt="Planche RGAA : critères WCAG 2.2 et déclaration d'accessibilité" width="300">
+</p>
+
+<p align="center"><em>Charte, maquettes, flyer et planche RGAA, tirés du fichier <a href="https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers">Figma AtouVent</a> (dossier <code>design/figma/</code>).</em></p>
+
 - Code : licence MIT (`licence.MIT`) · contributions : `contributing.md` · données et logiciels réutilisés : `SOURCES.md`
 - Accessibilité visée : RGAA 4.1 niveau AA (contrôles automatiques dans `frontend/scripts/a11y/`)
 - **Charte graphique : [Figma AtouVent](https://www.figma.com/design/HscfdE8mqzpNKNbZaySCkB/AtouVent-%C2%B7-Charte--maquette-et-flyers?node-id=0-1&m=dev&t=oiEklMA7Sf5s0VyM-1)** : le logo, les couleurs et la typographie. Le reste (maquette des écrans, flyers) est dans le fichier, en cliquant sur le lien.
