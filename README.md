@@ -10,6 +10,62 @@ Application web installable (PWA, APK Android) et écrans pour les décideurs, r
 - **En ligne : [atouvent.com](https://atouvent.com)** (site, API sur `/api`, application Android)
 - Images Docker publiées dans **GitHub Packages** : `ghcr.io/bricebokatola/atouvent-api` et `ghcr.io/bricebokatola/atouvent-web`
 
+## Liens
+
+**Application** : [atouvent.com](https://atouvent.com) ·
+[état du service](https://atouvent.com/api/v1/health) ·
+[mentions légales](https://atouvent.com/mentions-legales.html) ·
+[confidentialité et cookies](https://atouvent.com/confidentialite.html) ·
+[déclaration d'accessibilité](https://atouvent.com/declaration-accessibilite.html)
+
+**Sources de données** (licences et fréquences de mise à jour : `SOURCES.md`)
+
+- Île-de-France Mobilités :
+  [horaires GTFS](https://data.iledefrance-mobilites.fr/explore/dataset/offre-horaires-tc-gtfs-idfm/) ·
+  [PRIM (temps réel, info trafic)](https://prim.iledefrance-mobilites.fr/) ·
+  [référentiel des lignes (climatisation)](https://data.iledefrance-mobilites.fr/explore/dataset/referentiel-des-lignes/) ·
+  [arrêts](https://data.iledefrance-mobilites.fr/explore/dataset/arrets/) ·
+  [arrêts-lignes](https://data.iledefrance-mobilites.fr/explore/dataset/arrets-lignes/) ·
+  [zones d'arrêts](https://data.iledefrance-mobilites.fr/explore/dataset/zones-d-arrets/) ·
+  [état des ascenseurs](https://data.iledefrance-mobilites.fr/explore/dataset/etat-des-ascenseurs/) ·
+  [qualité de l'air sur les quais (Airparif)](https://data.iledefrance-mobilites.fr/explore/dataset/qualite-de-lair-dans-le-reseau-de-transport-francilien/) ·
+  [accessibilité en gare](https://data.iledefrance-mobilites.fr/explore/dataset/accessibilite-en-gare/) ·
+  [fontaines aux arrêts](https://data.iledefrance-mobilites.fr/explore/dataset/fontaines-arrets-de-transport-en-commun-didf/) ·
+  [parkings vélos](https://data.iledefrance-mobilites.fr/explore/dataset/parking-velos-ile-de-france-mobilites/) ·
+  [parcs relais](https://data.iledefrance-mobilites.fr/explore/dataset/parking_relais_idf/) ·
+  [toilettes RATP](https://data.iledefrance-mobilites.fr/explore/dataset/sanitaires-reseau-ratp/) ·
+  [validations par jour, réseau ferré](https://data.iledefrance.fr/explore/dataset/validations-sur-le-reseau-ferre-nombre-de-validations-par-jour-3eme-trimestre-2025/)
+- Ville de Paris :
+  [fontaines à boire](https://opendata.paris.fr/explore/dataset/fontaines-a-boire/) ·
+  [îlots de fraîcheur : espaces verts](https://opendata.paris.fr/explore/dataset/ilots-de-fraicheur-espaces-verts-frais/) ·
+  [îlots de fraîcheur : équipements](https://opendata.paris.fr/explore/dataset/ilots-de-fraicheur-equipements-activites/) ·
+  [sanisettes](https://opendata.paris.fr/explore/dataset/sanisettesparis/) ·
+  [chantiers perturbants](https://opendata.paris.fr/explore/dataset/chantiers-perturbants/) ·
+  [arbres](https://opendata.paris.fr/explore/dataset/les-arbres/) ·
+  [comptages vélo](https://opendata.paris.fr/explore/dataset/comptage-velo-donnees-compteurs/) ·
+  [comptages routiers](https://opendata.paris.fr/explore/dataset/comptages-routiers-permanents/)
+- Météo et climat :
+  [Météo-France, données quotidiennes](https://www.data.gouv.fr/fr/datasets/donnees-climatologiques-de-base-quotidiennes/) ·
+  [données horaires](https://www.data.gouv.fr/fr/datasets/donnees-climatologiques-de-base-horaires/) ·
+  [vigilance (portail API)](https://portail-api.meteofrance.fr) ·
+  [TRACC +2,7 °C](https://data.ademe.fr/datasets/donnees-climatiques-prospectives-france-2-7-vague-de-chaleur) ·
+  [TRACC +4 °C](https://data.ademe.fr/datasets/donnees-climatiques-prospectives-france-4-vague-de-chaleur) ·
+  [Open-Meteo](https://open-meteo.com/) ·
+  [Copernicus CAMS](https://atmosphere.copernicus.eu/)
+- Eau et crues : [Vigicrues](https://www.vigicrues.gouv.fr/) · [Hub'Eau hydrométrie](https://hubeau.eaufrance.fr/page/api-hydrometrie)
+- Territoire et société :
+  [Institut Paris Region (îlots de chaleur, espaces verts)](https://data-iau-idf.opendata.arcgis.com/) ·
+  [INSEE Filosofi, revenus carroyés 200 m](https://www.data.gouv.fr/datasets/revenus-pauvrete-et-niveau-de-vie-donnees-carroyees-2019-et-2021-dispositif-fichier-localise-social-et-fiscal-filosofi) ·
+  [accidents corporels (BAAC)](https://www.data.gouv.fr/fr/datasets/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2024/) ·
+  [jours fériés](https://www.data.gouv.fr/fr/datasets/jours-feries-en-france/)
+- Autres : [Vélib' Métropole](https://www.data.gouv.fr/fr/datasets/velib-velos-et-bornes-disponibilite-temps-reel/) ·
+  [IGN Géoplateforme](https://geoservices.ign.fr/) ·
+  [qualité de l'air en station (RATP)](https://data.ratp.fr/explore/dataset/qualite-de-lair-mesuree-dans-la-station-chatelet-2021-maintenant/) ·
+  [assistance PMR en gare (SNCF)](https://ressources.data.sncf.com/explore/dataset/accompagnement-pmr-gares/) ·
+  [Impact CO2 (ADEME)](https://impactco2.fr/) ·
+  [Dispotrains](https://dispotrains.membrives.fr/) ·
+  [OpenStreetMap](https://www.openstreetmap.org/copyright)
+
 ## Ce que fait l'application
 
 **Pour les voyageurs**
