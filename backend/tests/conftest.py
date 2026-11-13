@@ -6,6 +6,7 @@ from cryptography.fernet import Fernet
 os.environ["ATOUVENT_NO_DOTENV"] = "1"  # jamais le vrai .env (ni le vrai SMTP) pendant les tests
 os.environ["SMTP_HOST"] = ""
 os.environ["SUPERADMIN_EMAILS"] = "chef@exemple.fr"
+os.environ["REQUIRE_EMAIL_VERIFICATION"] = "0"  # tests existants : comptes ouverts tout de suite (la confirmation a ses propres tests)
 os.environ.setdefault("PROFILE_ENCRYPTION_KEY", Fernet.generate_key().decode())
 os.environ.setdefault("JWT_SECRET", "secret-de-test-assez-long-pour-hs256-ok")
 

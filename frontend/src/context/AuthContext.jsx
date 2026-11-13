@@ -48,7 +48,12 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => ({
     user, ready,
     login: async (body) => open(await api.auth.login(body)),
-    register: async (body) => open(await api.auth.register(body)),
+    // Inscription : pas de session tant que l'adresse e-mail n'est pas confirmée (renvoie { verify, email })
+    register: async (body) => {
+      const r = await api.auth.register(body)
+      return r.verify ? r : open(r)
+    },
+    verifyEmail: async (token) => open(await api.auth.verify(token)),
     resetPassword: async (token, password) => open(await api.auth.reset(token, password)),
     // Les autres appareils sont déconnectés ; celui-ci reçoit un nouveau jeton
     changePassword: async (body) => open(await api.me.password(body)),

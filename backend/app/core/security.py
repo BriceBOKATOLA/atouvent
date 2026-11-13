@@ -81,6 +81,24 @@ def reset_token_matches(claims: dict, user: dict) -> bool:
     return hmac.compare_digest(claims.get("pw", ""), _pw_fingerprint(user.get("password", "")))
 
 
+def verification_required() -> bool:
+    """Adresse e-mail confirmée exigée avant toute connexion (désactivable seulement pour les tests)."""
+    return os.environ.get("REQUIRE_EMAIL_VERIFICATION", "1") != "0"
+
+
+def make_verify_token(user: dict, hours: int = 48) -> str:
+    exp = datetime.now(timezone.utc) + timedelta(hours=hours)
+    return jwt.encode({"sub": str(user["_id"]), "exp": exp, "use": "verify", "em": user["email"]},
+                      settings.jwt_secret, algorithm="HS256")
+
+
+def read_verify_token(token: str) -> dict:
+    claims = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"], options={"require": ["exp", "sub"]})
+    if claims.get("use") != "verify":
+        raise jwt.InvalidTokenError("wrong_use")
+    return claims
+
+
 def _fernet() -> Fernet:
     key = settings.profile_key or os.environ.get("PROFILE_ENCRYPTION_KEY")
     if not key:

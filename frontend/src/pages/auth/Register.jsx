@@ -28,8 +28,10 @@ export default function Register() {
     setBusy(true)
     setError('')
     try {
-      await register({ ...form, language: lang })
+      const r = await register({ ...form, language: lang, alerts_on: choices.alerts })
       set({ use_location: choices.location })
+      // Adresse à confirmer : le compte s'ouvre avec le lien reçu par e-mail
+      if (r?.verify) return navigate('/inscription/confirmation', { replace: true, state: { email: r.email } })
       if (!choices.alerts) await update({ alerts: [] }).catch(() => {})
       navigate('/inscription/profil', { replace: true })
     } catch (err) {

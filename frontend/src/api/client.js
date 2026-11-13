@@ -50,6 +50,8 @@ export const api = {
     logout: () => request('/auth/logout', { method: 'POST' }),
     forgot: (email) => request('/auth/forgot-password', { method: 'POST', body: { email } }),
     reset: (token, password) => request('/auth/reset-password', { method: 'POST', body: { token, password } }),
+    verify: (token) => request('/auth/verify-email', { method: 'POST', body: { token } }),
+    resendVerification: (email) => request('/auth/resend-verification', { method: 'POST', body: { email } }),
   },
   me: {
     get: () => request('/me'),

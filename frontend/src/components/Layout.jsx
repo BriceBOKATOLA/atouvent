@@ -7,7 +7,7 @@ import { useI18n } from '../i18n/index.jsx'
 import BottomNav from './BottomNav.jsx'
 
 // Écrans en plein écran dans la maquette (pas de navigation basse) ; ceux du compte ont un fond blanc
-const PLAIN = ['/connexion', '/inscription', '/mot-de-passe']
+const PLAIN = ['/connexion', '/inscription', '/mot-de-passe', '/confirmer-email']
 const FULL = [...PLAIN, '/itineraires', '/trajet']
 const starts = (list, path) => list.some((p) => path === p || path.startsWith(`${p}/`) || path.startsWith(`${p}-`))
 

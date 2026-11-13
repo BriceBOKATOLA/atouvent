@@ -10,8 +10,8 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request,
 from ..core import security as sec
 from ..core.ratelimit import limit
 from ..core.config import settings
-from ..deps import SESSION_COOKIE, db_dep, limiter_dep, role_of, user_dep
-from ..schemas import ChangePassword, ForgotPassword, Login, Preferences, Register, ResetPassword, SavedPlace
+from ..deps import SESSION_COOKIE, db_dep, limiter_dep, needs_verification, role_of, user_dep
+from ..schemas import ChangePassword, ForgotPassword, Login, Preferences, Register, ResetPassword, SavedPlace, VerifyEmail
 from ..services import mailer
 
 router = APIRouter(tags=["compte"])
@@ -67,20 +67,61 @@ def check(p: Preferences | Register) -> None:
 
 
 @router.post("/auth/register", dependencies=[Depends(limit("register"))])
-def register(body: Register, request: Request, response: Response, db=Depends(db_dep)):
+def register(body: Register, request: Request, response: Response, tasks: BackgroundTasks, db=Depends(db_dep)):
     check(body)
     email = body.email.lower()
     if db.users.find_one({"email": email}):
         raise HTTPException(409, "email_taken")
     now = datetime.now(timezone.utc)
+    verify = sec.verification_required()
     doc = {"email": email, "password": sec.hash_password(body.password), "language": body.language,
-           "created_at": now, "alerts": DEFAULT_ALERTS, "offline": True, "role": "user", "token_version": 0}
+           "created_at": now, "alerts": DEFAULT_ALERTS if body.alerts_on else [], "offline": True, "role": "user",
+           "token_version": 0, "email_verified": not verify}
     if body.profile:
         doc["profile_enc"] = sec.encrypt_profile(body.profile)
         doc["profile_consent_at"] = now
         doc.update(profile_defaults(body.profile))
     uid = db.users.insert_one(doc).inserted_id
-    return session(db.users.find_one({"_id": uid}), request, response)
+    user = db.users.find_one({"_id": uid})
+    if verify and needs_verification(user):
+        # Pas de session : le compte s'ouvre en cliquant sur le lien reçu par e-mail
+        tasks.add_task(send_verification, user)
+        response.status_code = 202
+        return {"verify": True, "email": email}
+    return session(user, request, response)
+
+
+def send_verification(user: dict) -> bool:
+    lang = user.get("language", "fr")
+    link = mailer.verify_link(sec.make_verify_token(user))
+    return mailer.send(user["email"], mailer.text(lang, "verify_subject"), mailer.text(lang, "verify_body", link=link, hours=48),
+                       lang, button="verify")
+
+
+@router.post("/auth/verify-email", dependencies=[Depends(limit("login"))])
+def verify_email(body: VerifyEmail, request: Request, response: Response, db=Depends(db_dep)):
+    """Lien reçu par e-mail : l'adresse est confirmée et le compte s'ouvre."""
+    try:
+        claims = sec.read_verify_token(body.token)
+        user = db.users.find_one({"_id": ObjectId(claims["sub"])})
+    except (jwt.InvalidTokenError, InvalidId, TypeError):
+        raise HTTPException(400, "verify_invalid")
+    if not user or claims.get("em") != user["email"]:
+        raise HTTPException(400, "verify_invalid")
+    now = datetime.now(timezone.utc)
+    if not user.get("email_verified"):
+        db.users.update_one({"_id": user["_id"]}, {"$set": {"email_verified": True, "email_verified_at": now}})
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"last_login_at": now}})
+    return session(db.users.find_one({"_id": user["_id"]}), request, response)
+
+
+@router.post("/auth/resend-verification", dependencies=[Depends(limit("email"))])
+def resend_verification(body: ForgotPassword, tasks: BackgroundTasks, db=Depends(db_dep)):
+    """Renvoie le lien de confirmation. Réponse identique que le compte existe ou non."""
+    user = db.users.find_one({"email": body.email.lower()})
+    if user and needs_verification(user):
+        tasks.add_task(send_verification, user)
+    return {"sent": True}
 
 
 @router.post("/auth/login", dependencies=[Depends(limit("login"))])
@@ -92,6 +133,9 @@ def login(body: Login, request: Request, response: Response, db=Depends(db_dep))
     # Même coût de calcul que l'adresse existe ou non
     if not sec.check_password_or_dummy(body.password, (user or {}).get("password")):
         raise HTTPException(401, "bad_credentials")
+    # Bon mot de passe mais adresse pas encore confirmée : pas de connexion
+    if needs_verification(user):
+        raise HTTPException(403, "email_not_verified")
     db.users.update_one({"_id": user["_id"]}, {"$set": {"last_login_at": datetime.now(timezone.utc)}})
     return session(user, request, response)
 
@@ -125,7 +169,8 @@ def reset_password(body: ResetPassword, request: Request, response: Response, db
         raise HTTPException(400, "reset_invalid")
     if not user or not sec.reset_token_matches(claims, user):
         raise HTTPException(400, "reset_invalid")
-    db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password)},
+    # Le lien est arrivé dans la boîte de l'usager : l'adresse est confirmée du même coup
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password), "email_verified": True},
                                                "$inc": {"token_version": 1}})
     return session(db.users.find_one({"_id": user["_id"]}), request, response)
 
@@ -135,7 +180,8 @@ def change_password(body: ChangePassword, request: Request, response: Response, 
                     db=Depends(db_dep)):
     if not sec.check_password(body.current_password, user["password"]):
         raise HTTPException(401, "bad_credentials")
-    db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password)},
+    # Le lien est arrivé dans la boîte de l'usager : l'adresse est confirmée du même coup
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"password": sec.hash_password(body.password), "email_verified": True},
                                                "$inc": {"token_version": 1}})
     # Les autres appareils sont déconnectés ; celui-ci reçoit un nouveau jeton
     return session(db.users.find_one({"_id": user["_id"]}), request, response)

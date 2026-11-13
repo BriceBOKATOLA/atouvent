@@ -11,6 +11,8 @@ const Register = lazy(() => import('./pages/auth/Register.jsx'))
 const RegisterProfile = lazy(() => import('./pages/auth/RegisterProfile.jsx'))
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword.jsx'))
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword.jsx'))
+const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail.jsx'))
+const ConfirmEmail = lazy(() => import('./pages/auth/ConfirmEmail.jsx'))
 const Around = lazy(() => import('./pages/Around.jsx'))
 const Itineraries = lazy(() => import('./pages/trip/Itineraries.jsx'))
 const Trip = lazy(() => import('./pages/trip/Trip.jsx'))
@@ -49,6 +51,8 @@ export const routes = [
       { path: '/connexion', element: <Login /> },                 // 01 Connexion
       { path: '/inscription', element: <Register /> },            // 02 Créer un compte
       { path: '/inscription/profil', element: <RegisterProfile /> }, // 02b Profil de déplacement
+      { path: '/inscription/confirmation', element: <VerifyEmail /> }, // e-mail de confirmation envoyé
+      { path: '/confirmer-email', element: <ConfirmEmail /> },     // lien de confirmation reçu par e-mail
       { path: '/mot-de-passe-oublie', element: <ForgotPassword /> },
       { path: '/mot-de-passe/nouveau', element: <ResetPassword /> }, // lien reçu par e-mail
       { path: '/itineraires', element: <Itineraries /> },         // 04 Itinéraires

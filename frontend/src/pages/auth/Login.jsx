@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import BrandHead from '../../components/BrandHead.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
+import ResendVerification from '../../components/ResendVerification.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useI18n } from '../../i18n/index.jsx'
 
@@ -13,16 +14,19 @@ export default function Login() {
   const { state } = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [unverified, setUnverified] = useState(false)  // bon mot de passe, adresse e-mail pas encore confirmée
   const [busy, setBusy] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
     setError('')
+    setUnverified(false)
     try {
       await login(form)
       navigate(state?.from || '/', { replace: true })
     } catch (err) {
+      setUnverified(err.code === 'email_not_verified')
       setError(errText(err.code))
     } finally {
       setBusy(false)
@@ -47,6 +51,7 @@ export default function Login() {
           </div>
           <button className="btn btn--primary btn--block btn--lg" disabled={busy}>{t('auth.login')}</button>
         </form>
+        {unverified && <ResendVerification email={form.email} />}
         <div className="form__bottom">
           <span>{t('auth.no_account')}</span>
           <Link to="/inscription">{t('auth.register')}</Link>

@@ -24,6 +24,11 @@ class Register(BaseModel):
     language: str = "fr"
     profile_consent: bool = False
     profile: list[str] = Field(default=[], max_length=10)  # vide = « non » ou « je préfère ne pas répondre »
+    alerts_on: bool = True  # alertes météo choisies à l'inscription (pas de session avant la confirmation de l'adresse)
+
+
+class VerifyEmail(BaseModel):
+    token: str = Field(max_length=2000)
 
 
 class Login(BaseModel):

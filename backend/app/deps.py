@@ -63,6 +63,9 @@ def user_dep(request: Request, authorization: str = Header(default=""), db=Depen
     # Mot de passe changé depuis : toutes les anciennes sessions sont fermées
     if claims.get("tv", 0) != user.get("token_version", 0):
         raise HTTPException(401, "session_expired")
+    # Adresse e-mail pas encore confirmée : aucune session ne vaut (y compris une session ouverte avant la règle)
+    if needs_verification(user):
+        raise HTTPException(401, "email_not_verified")
     return user
 
 
@@ -70,6 +73,11 @@ def role_of(user: dict) -> str:
     if user.get("email") in settings.superadmin_emails:
         return "superadmin"
     return user.get("role", "user")
+
+
+def needs_verification(user: dict) -> bool:
+    """Vrai tant que l'adresse e-mail n'est pas confirmée (le super admin défini dans SUPERADMIN_EMAILS en est dispensé)."""
+    return sec.verification_required() and not user.get("email_verified") and role_of(user) != "superadmin"
 
 
 def optional_user_dep(request: Request, authorization: str = Header(default=""), db=Depends(db_dep)) -> dict | None:
