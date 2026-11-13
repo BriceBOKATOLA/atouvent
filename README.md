@@ -42,6 +42,27 @@ Application web installable (PWA, APK Android) et écrans pour les décideurs, r
 [confidentialité et cookies](https://atouvent.com/confidentialite.html) ·
 [déclaration d'accessibilité](https://atouvent.com/declaration-accessibilite.html)
 
+**Dépôt au hackathon** : dossier `defi-1_equipe-4_atouvent` (équipe 4, défi 1), proposé au dépôt officiel par la
+[demande de fusion n° 10](https://github.com/hackathons-mobilites/hackaviz_2026/pull/10) ; une fois acceptée, il se trouvera dans
+[Résultats › Défi 1](https://github.com/hackathons-mobilites/hackaviz_2026/tree/main/Resultats/D%C3%A9fi%201%20-%20Les%20mobilit%C3%A9s%20et%20l%E2%80%99adaptation%20climatique).
+Topic du dépôt : `hackathonmobilites2026`.
+
+## Accès jury et administrateurs
+
+- **Compte du jury** : `testtos407@gmail.com`, rôle **admin**, adresse déjà confirmée. Le mot de passe est transmis au jury
+  directement (jamais écrit dans ce dépôt public).
+- Connexion sur [atouvent.com/connexion](https://atouvent.com/connexion), puis **Mon compte** : boutons « Administration » et
+  « Données ». Écrans décideurs (conçus pour un ordinateur) :
+  [analyse 2025-2026](https://atouvent.com/donnees) ·
+  [supervision en temps réel](https://atouvent.com/donnees/supervision) ·
+  [prévision et chaleur à venir](https://atouvent.com/donnees/prevision).
+- **Rôles** : un **admin** voit les écrans décideurs, les statistiques et l'état des collectes ; seul le **super admin**
+  (adresse inscrite dans `SUPERADMIN_EMAILS`) voit la liste des comptes, le journal, change les rôles et supprime des comptes.
+  Pour donner l'accès à quelqu'un : la personne crée un compte, puis le super admin la passe en admin dans « Administration ».
+- **Adresse e-mail confirmée obligatoire** : à l'inscription, aucune session n'est ouverte ; un e-mail « Confirmer mon adresse »
+  est envoyé (lien valable 48 h, renvoi possible depuis l'écran de connexion). Seuls le super admin et le compte du jury en
+  sont dispensés.
+
 **Sources de données** (licences et fréquences de mise à jour : `SOURCES.md`)
 
 - Île-de-France Mobilités :
@@ -244,6 +265,11 @@ Déclaration d'accessibilité : `frontend/public/declaration-accessibilite.html`
   l'application et envoyé en `Authorization: Bearer`. Déconnexion : `POST /auth/logout` efface le cookie.
 - **Cookies** : un seul, celui de la session, strictement nécessaire (exempté de consentement, CNIL) ; aucun cookie de
   suivi ni de mesure d'audience. Le détail de ce qui est gardé sur l'appareil est dans `frontend/public/confidentialite.html`.
+- **Adresse e-mail confirmée avant toute connexion** : inscription sans session, lien signé réservé à cet usage (« verify »)
+  (48 h, `/confirmer-email#jeton`, jeton retiré de la barre d'adresse) ; connexion refusée tant que l'adresse n'est pas
+  confirmée (`403 email_not_verified`, seulement après le bon mot de passe), sessions plus anciennes refusées aussi ; renvoi du
+  lien avec une réponse identique que le compte existe ou non ; le lien « nouveau mot de passe » confirme aussi l'adresse.
+  Dispensés : le super admin (`SUPERADMIN_EMAILS`) et les comptes marqués confirmés (`email_verified`, compte du jury).
 - Mots de passe hachés (scrypt) ; profil de déplacement (donnée de santé) chiffré en base et jamais exposé aux admins.
 - **Anti-abus** : limite par adresse IP sur toute l'API (300 requêtes/min), plus stricte pour le compte, l'administration
   et le flux en direct, et par route (connexion, inscription, e-mails, itinéraires…) ; 20 essais de connexion par heure et
@@ -316,6 +342,7 @@ Toutes les sources, leurs licences et leur fréquence de mise à jour : **`SOURC
 |---|---|---|
 | GET | `/health`, `/collect/status` | état du service et de la collecte |
 | POST | `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password` | compte (limité par IP ; session en cookie HttpOnly sur le web) |
+| POST | `/auth/verify-email`, `/auth/resend-verification` | confirmation de l'adresse e-mail (obligatoire avant la connexion) ; renvoi du lien |
 | GET, PUT, DELETE | `/me`, `/me/preferences`, `/me/export`, `/me/places…`, `/me/password` | profil, préférences, export et suppression (RGPD) |
 | GET | `/geo/search?q=` | gares et stations du réseau d'abord, puis adresses et lieux (IGN) |
 | POST | `/trips/plan` | itinéraires (`modes`, `accessible`, `walk`, `depart_at` pour un trajet à venir) |
